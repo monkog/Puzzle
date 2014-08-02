@@ -1,0 +1,15 @@
+﻿<Window x:Class="WpfApplication1.EndWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        DataContext="{Binding RelativeSource= {RelativeSource Self}}"
+        Title="Message" Height="200" Width="330.451" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded_1">
+    <Grid>
+        <Button Name="okButton" Content="OK" HorizontalAlignment="Left" Margin="200,130,0,0" VerticalAlignment="Top" Width="50" Height="30" Click="okButton_Click"/>
+        <Button Name="cancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="255,130,0,0" VerticalAlignment="Top" Width="50" Height="30" Click="cancelButton_Click"/>
+        <TextBox Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="86,96,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="152"/>
+        <Label Name="wonLabel" Content="" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="302" HorizontalContentAlignment="Center"/>
+        <Label Name="timerLabel" Content="" HorizontalAlignment="Left" Margin="120,41,0,0" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Center"/>
+        <Label Content="Give your name:" HorizontalAlignment="Left" Margin="115,70,0,0" VerticalAlignment="Top" Width="96" HorizontalContentAlignment="Center"/>
+
+    </Grid>
+</Window>
