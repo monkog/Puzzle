@@ -54,6 +54,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GameDetails.cs" />
+    <Compile Include="ListItems.cs" />
+    <Compile Include="ThumbTag.cs" />
+    <Compile Include="TimeManaging.cs" />
     <Page Include="EndWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

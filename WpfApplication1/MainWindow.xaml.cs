@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.IO;
 using System.Windows.Threading;
 using System.Collections.ObjectModel;
@@ -30,8 +24,6 @@ namespace WpfApplication1
 
         public List<List<Thumb>> unionList = new List<List<Thumb>>();
         public gameDetails gd = new gameDetails();
-        public int seconds = 0;
-        public DispatcherTimer timer, pauseTimer;
         public bool start = true;
         public ObservableCollection<listItems> _easyList = new ObservableCollection<listItems>(),
             _mediumList = new ObservableCollection<listItems>(),
@@ -59,19 +51,8 @@ namespace WpfApplication1
         {
             InitializeComponent();
 
-            timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 1);
-            timer.Tick += timer_Tick;
-
-            pauseTimer = new DispatcherTimer();
-            pauseTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
-            pauseTimer.Tick += pauseTimer_Tick;
-            easyListView.Items.SortDescriptions.Add(new SortDescription("counter", ListSortDirection.Descending));
-            easyListView.Items.SortDescriptions.Add(new SortDescription("time", ListSortDirection.Ascending));
-            mediumListView.Items.SortDescriptions.Add(new SortDescription("counter", ListSortDirection.Descending));
-            mediumListView.Items.SortDescriptions.Add(new SortDescription("time", ListSortDirection.Ascending));
-            hardListView.Items.SortDescriptions.Add(new SortDescription("counter", ListSortDirection.Descending));
-            hardListView.Items.SortDescriptions.Add(new SortDescription("time", ListSortDirection.Ascending));
+            setTimers();
+            setSortDescriptions();
 
             shadowEffect = new DropShadowBitmapEffect()
             {
@@ -83,48 +64,17 @@ namespace WpfApplication1
             };
         }
 
-        #region timers
-
-        void new_timer()
+        private void setSortDescriptions()
         {
-            timer.Stop();
-            seconds = 0;
-            timerLabel.Content = String.Format("Time {0}:{1}:{2}", (seconds / 3600).ToString("00"), (seconds / 60).ToString("00"), (seconds % 60).ToString("00"));
-            timer.Start();
+            easyListView.Items.SortDescriptions.Add(new SortDescription("counter", ListSortDirection.Descending));
+            easyListView.Items.SortDescriptions.Add(new SortDescription("time", ListSortDirection.Ascending));
+            mediumListView.Items.SortDescriptions.Add(new SortDescription("counter", ListSortDirection.Descending));
+            mediumListView.Items.SortDescriptions.Add(new SortDescription("time", ListSortDirection.Ascending));
+            hardListView.Items.SortDescriptions.Add(new SortDescription("counter", ListSortDirection.Descending));
+            hardListView.Items.SortDescriptions.Add(new SortDescription("time", ListSortDirection.Ascending));
         }
-
-        private void pauseImage_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            pauseTimer.Start();
-        }
-
-        void timer_Tick(object sender, EventArgs e)
-        {
-            seconds++;
-            timerLabel.Content = String.Format("Time {0}:{1}:{2}", (seconds / 3600).ToString("00"), (seconds / 60).ToString("00"), (seconds % 60).ToString("00"));
-        }
-
-        void pauseTimer_Tick(object sender, EventArgs e)
-        {
-            pauseImage.Opacity -= 0.05;
-            pauseImage.UpdateLayout();
-
-            if (pauseImage.Opacity <= 0.1)
-            {
-                pauseTimer.Stop();
-                timer.Start();
-                startButton.IsEnabled = true;
-                pauseButton.IsEnabled = true;
-                easyRadio.IsEnabled = true;
-                mediumRadio.IsEnabled = true;
-                hardRadio.IsEnabled = true;
-                pauseImage.Visibility = Visibility.Hidden;
-            }
-        }
-        #endregion
 
         #region buttons
-
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
             if (start)
@@ -136,67 +86,17 @@ namespace WpfApplication1
 
                 Nullable<bool> result = dlg.ShowDialog();
 
-                try
+                if (result == true)
                 {
-                    if (result == true)
-                    {
-                        Random rnd = new Random();
-                        Random angle = new Random();
-                        int[] angles = new int[] { 0, 90, 180, 270 };
-                        stream = File.Open(dlg.FileName, FileMode.Open);
+                    BitmapImage image = openChosenFile(dlg.FileName);
+                    createPuzzle(image);
+                    timerLabel.Visibility = Visibility.Visible;
 
-                        BitmapImage imgsrc = new BitmapImage();
-                        imgsrc.BeginInit();
-                        imgsrc.StreamSource = stream;
-                        imgsrc.EndInit();
-                        imgsrc.Freeze();
-                        timerLabel.Visibility = Visibility.Visible;
-                        thumbTab = new Thumb[maxHeight, maxWidth];
+                    new_timer();
 
-                        for (int i = 0; i < maxHeight; i++)
-                            for (int j = 0; j < maxWidth; j++)
-                            {
-                                CroppedBitmap cb = new CroppedBitmap(imgsrc
-                                    , new Int32Rect(j * (int)imgsrc.PixelWidth / maxWidth, i * (int)imgsrc.PixelHeight / maxHeight
-                                        , (int)imgsrc.PixelWidth / maxWidth, (int)imgsrc.PixelHeight / maxHeight));
-                                ImageBrush imgBrush = new ImageBrush();
-                                imgBrush.ImageSource = cb;
-                                int rotationAng = angles[angle.Next(3)];
-
-                                imgBrush.Transform = new RotateTransform(rotationAng, -1 + (puzzleSize - 1) / 2, -1 + (puzzleSize - 1) / 2);
-                                imgBrush.Stretch = Stretch.Fill;
-
-                                Thumb thmb = new Thumb() { Width = puzzleSize, Height = puzzleSize };
-                                Canvas.SetLeft(thmb, rnd.NextDouble() * (image.ActualWidth - puzzleSize));
-                                Canvas.SetTop(thmb, rnd.NextDouble() * (image.ActualHeight - puzzleSize));
-                                RotateTransform rt = new RotateTransform(angles[angle.Next(3)]);
-
-                                thmb.DragStarted += thmb_DragStarted;
-                                thmb.DragDelta += thmb_DragDelta;
-                                thmb.DragCompleted += thmb_DragCompleted;
-                                thmb.MouseRightButtonDown += thmb_MouseRightButtonDown;
-                                Canvas.SetZIndex(thmb, int.MinValue);
-                                thmb.Background = imgBrush;
-                                List<Thumb> newList = new List<Thumb>();
-                                newList.Add(thmb);
-                                unionList.Add(newList);
-                                thumbTag tt = new thumbTag { ib = imgBrush, rotationAngle = rotationAng, x = j, y = i, unionNr = i * maxWidth + j, listName = newList, maxBottom = new Point(j, i), maxTop = new Point(j, i), maxLeft = new Point(j, i), maxRight = new Point(j, i) };
-                                thmb.Tag = tt;
-                                thumbTab[i, j] = thmb;
-                                image.Children.Add(thmb);
-                            }
-                        new_timer();
-
-                        startButton.Content = "End game";
-                        pauseButton.IsEnabled = true;
-                        start = false;
-                    }
-                }
-                catch (Exception exc)
-                {
-                    stream.Close();
-                    image.Children.Clear();
-                    MessageBox.Show("An problem occured while opening the file " + exc.Message);
+                    startButton.Content = "End game";
+                    pauseButton.IsEnabled = true;
+                    start = false;
                 }
             }
             else
@@ -206,6 +106,69 @@ namespace WpfApplication1
                 ew.ShowInTaskbar = false;
                 ew.ShowDialog();
             }
+        }
+
+        private BitmapImage openChosenFile(string file)
+        {
+            BitmapImage imgsrc = new BitmapImage();
+         
+            try
+            {
+                stream = File.Open(file, FileMode.Open);
+
+                imgsrc.BeginInit();
+                imgsrc.StreamSource = stream;
+                imgsrc.EndInit();
+                imgsrc.Freeze();
+            }
+            catch (Exception exc)
+            {
+                stream.Close();
+                image.Children.Clear();
+                MessageBox.Show("An problem occured while opening the file " + exc.Message);
+            }
+            return imgsrc;
+        }
+
+        private void createPuzzle(BitmapImage imgsrc)
+        {
+            Random rnd = new Random();
+            Random angle = new Random();
+            int[] angles = new int[] { 0, 90, 180, 270 };
+            thumbTab = new Thumb[maxHeight, maxWidth];
+
+            for (int i = 0; i < maxHeight; i++)
+                for (int j = 0; j < maxWidth; j++)
+                {
+                    CroppedBitmap cb = new CroppedBitmap(imgsrc
+                        , new Int32Rect(j * (int)imgsrc.PixelWidth / maxWidth, i * (int)imgsrc.PixelHeight / maxHeight
+                            , (int)imgsrc.PixelWidth / maxWidth, (int)imgsrc.PixelHeight / maxHeight));
+                    ImageBrush imgBrush = new ImageBrush();
+                    imgBrush.ImageSource = cb;
+                    int rotationAng = angles[angle.Next(3)];
+
+                    imgBrush.Transform = new RotateTransform(rotationAng, -1 + (puzzleSize - 1) / 2, -1 + (puzzleSize - 1) / 2);
+                    imgBrush.Stretch = Stretch.Fill;
+
+                    Thumb thmb = new Thumb() { Width = puzzleSize, Height = puzzleSize };
+                    Canvas.SetLeft(thmb, rnd.NextDouble() * (image.ActualWidth - puzzleSize));
+                    Canvas.SetTop(thmb, rnd.NextDouble() * (image.ActualHeight - puzzleSize));
+                    RotateTransform rt = new RotateTransform(angles[angle.Next(3)]);
+
+                    thmb.DragStarted += thmb_DragStarted;
+                    thmb.DragDelta += thmb_DragDelta;
+                    thmb.DragCompleted += thmb_DragCompleted;
+                    thmb.MouseRightButtonDown += thmb_MouseRightButtonDown;
+                    Canvas.SetZIndex(thmb, int.MinValue);
+                    thmb.Background = imgBrush;
+                    List<Thumb> newList = new List<Thumb>();
+                    newList.Add(thmb);
+                    unionList.Add(newList);
+                    thumbTag tt = new thumbTag { ib = imgBrush, rotationAngle = rotationAng, x = j, y = i, unionNr = i * maxWidth + j, listName = newList, maxBottom = new Point(j, i), maxTop = new Point(j, i), maxLeft = new Point(j, i), maxRight = new Point(j, i) };
+                    thmb.Tag = tt;
+                    thumbTab[i, j] = thmb;
+                    image.Children.Add(thmb);
+                }
         }
 
         void thmb_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -256,26 +219,26 @@ namespace WpfApplication1
             //if (tt.maxLeft.X + e.HorizontalChange >= 0 && tt.maxRight.X + e.HorizontalChange <= rectangle.ActualWidth - puzzleSize
             //    && tt.maxTop.Y + e.VerticalChange >= 0 && tt.maxBottom.Y + e.VerticalChange <= rectangle.ActualHeight - puzzleSize)
 
-                for (int i = 0; i < tt.listName.Count; i++)
-                {
-                    if (Canvas.GetTop(tt.listName[i]) + e.VerticalChange >= 0)
-                        if (Canvas.GetTop(tt.listName[i]) + e.VerticalChange <= rectangle.ActualHeight - puzzleSize)
-                            Canvas.SetTop(tt.listName[i], Canvas.GetTop(tt.listName[i]) + e.VerticalChange);
-                        else
-                            Canvas.SetTop(tt.listName[i], rectangle.ActualHeight - puzzleSize);
+            for (int i = 0; i < tt.listName.Count; i++)
+            {
+                if (Canvas.GetTop(tt.listName[i]) + e.VerticalChange >= 0)
+                    if (Canvas.GetTop(tt.listName[i]) + e.VerticalChange <= rectangle.ActualHeight - puzzleSize)
+                        Canvas.SetTop(tt.listName[i], Canvas.GetTop(tt.listName[i]) + e.VerticalChange);
                     else
-                        Canvas.SetTop(tt.listName[i], 0);
+                        Canvas.SetTop(tt.listName[i], rectangle.ActualHeight - puzzleSize);
+                else
+                    Canvas.SetTop(tt.listName[i], 0);
 
-                    if (Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange < rectangle.ActualWidth - puzzleSize)
-                        if (Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange >= 0)
-                            Canvas.SetLeft(tt.listName[i], Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange);
-                        else
-                            Canvas.SetLeft(tt.listName[i], 0);
+                if (Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange < rectangle.ActualWidth - puzzleSize)
+                    if (Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange >= 0)
+                        Canvas.SetLeft(tt.listName[i], Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange);
                     else
-                        Canvas.SetLeft(tt.listName[i], rectangle.ActualWidth - puzzleSize);
+                        Canvas.SetLeft(tt.listName[i], 0);
+                else
+                    Canvas.SetLeft(tt.listName[i], rectangle.ActualWidth - puzzleSize);
 
-                    tt.listName[i].BitmapEffect = shadowEffect;
-                }
+                tt.listName[i].BitmapEffect = shadowEffect;
+            }
         }
 
         void thmb_DragCompleted(object sender, DragCompletedEventArgs e)
@@ -297,8 +260,8 @@ namespace WpfApplication1
                         Thumb t = thumbTab[tTag.y + 1, tTag.x];
                         thumbTag tt = (thumbTag)t.Tag;
                         if (tt.listName != tTag.listName)
-                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) + puzzleSize + 20 
-                                && Canvas.GetTop(t) > Canvas.GetTop(thmb) + puzzleSize - 20 
+                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) + puzzleSize + 20
+                                && Canvas.GetTop(t) > Canvas.GetTop(thmb) + puzzleSize - 20
                                 && Canvas.GetLeft(t) < Canvas.GetLeft(thmb) + 20 && Canvas.GetLeft(t) > Canvas.GetLeft(thmb) - 20)
                             {
                                 Point maxL = tTag.maxLeft;
@@ -537,38 +500,6 @@ namespace WpfApplication1
 
         #endregion
     }
-
-    #region classes
-
-    public class gameDetails
-    {
-        public char gameLevel { get; set; }
-        public int gameMaxCounter { get; set; }
-        public int currentGameCounter { get; set; }
-    }
-
-    public class listItems
-    {
-        public string name { get; set; }
-        public int counter { get; set; }
-        public int time { get; set; }
-    }
-
-    public class thumbTag
-    {
-        public ImageBrush ib { get; set; }
-        public int rotationAngle { get; set; }
-        public int unionNr { get; set; }
-        public int x { get; set; }
-        public int y { get; set; }
-        public List<Thumb> listName { get; set; }
-        public Point maxLeft { get; set; }
-        public Point maxRight { get; set; }
-        public Point maxTop { get; set; }
-        public Point maxBottom { get; set; }
-    }
-
-    #endregion
 
     //public static class ObservableCollectionSorted<T> 
     //{
