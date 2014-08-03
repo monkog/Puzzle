@@ -12,7 +12,7 @@ namespace WpfApplication1
         public DispatcherTimer timer, pauseTimer;
         #endregion
 
-        #region mathods
+        #region methods
         private void setTimers()
         {
             timer = new DispatcherTimer();
@@ -26,6 +26,7 @@ namespace WpfApplication1
 
         void new_timer()
         {
+            timerLabel.Visibility = Visibility.Visible;
             timer.Stop();
             seconds = 0;
             timerLabel.Content = String.Format("Time {0}:{1}:{2}", (seconds / 3600).ToString("00")

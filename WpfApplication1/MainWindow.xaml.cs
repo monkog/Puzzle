@@ -7,7 +7,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
-using System.Windows.Threading;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Effects;
 using System.ComponentModel;
@@ -89,9 +88,10 @@ namespace WpfApplication1
                 if (result == true)
                 {
                     BitmapImage image = openChosenFile(dlg.FileName);
-                    createPuzzle(image);
-                    timerLabel.Visibility = Visibility.Visible;
+                    if (image == null)
+                        return;
 
+                    createPuzzle(image);
                     new_timer();
 
                     startButton.Content = "End game";
@@ -101,6 +101,7 @@ namespace WpfApplication1
             }
             else
             {
+                timer.Stop();
                 EndWindow ew = new EndWindow();
                 ew.Owner = this;
                 ew.ShowInTaskbar = false;
@@ -110,16 +111,16 @@ namespace WpfApplication1
 
         private BitmapImage openChosenFile(string file)
         {
-            BitmapImage imgsrc = new BitmapImage();
-         
             try
             {
+                BitmapImage imgsrc = new BitmapImage();
                 stream = File.Open(file, FileMode.Open);
 
                 imgsrc.BeginInit();
                 imgsrc.StreamSource = stream;
                 imgsrc.EndInit();
                 imgsrc.Freeze();
+                return imgsrc;
             }
             catch (Exception exc)
             {
@@ -127,7 +128,7 @@ namespace WpfApplication1
                 image.Children.Clear();
                 MessageBox.Show("An problem occured while opening the file " + exc.Message);
             }
-            return imgsrc;
+            return null;
         }
 
         private void createPuzzle(BitmapImage imgsrc)
@@ -143,8 +144,7 @@ namespace WpfApplication1
                     CroppedBitmap cb = new CroppedBitmap(imgsrc
                         , new Int32Rect(j * (int)imgsrc.PixelWidth / maxWidth, i * (int)imgsrc.PixelHeight / maxHeight
                             , (int)imgsrc.PixelWidth / maxWidth, (int)imgsrc.PixelHeight / maxHeight));
-                    ImageBrush imgBrush = new ImageBrush();
-                    imgBrush.ImageSource = cb;
+                    ImageBrush imgBrush = new ImageBrush(cb);
                     int rotationAng = angles[angle.Next(3)];
 
                     imgBrush.Transform = new RotateTransform(rotationAng, -1 + (puzzleSize - 1) / 2, -1 + (puzzleSize - 1) / 2);
@@ -191,6 +191,7 @@ namespace WpfApplication1
 
         void endGame()
         {
+            timer.Stop();
             gd.currentGameCounter = gd.gameMaxCounter;
             EndWindow ew = new EndWindow();
             ew.Owner = this;
@@ -214,29 +215,24 @@ namespace WpfApplication1
         {
             Thumb thmb = sender as Thumb;
             thumbTag tt = (thumbTag)thmb.Tag;
-            bool move = true;
-
-            //if (tt.maxLeft.X + e.HorizontalChange >= 0 && tt.maxRight.X + e.HorizontalChange <= rectangle.ActualWidth - puzzleSize
-            //    && tt.maxTop.Y + e.VerticalChange >= 0 && tt.maxBottom.Y + e.VerticalChange <= rectangle.ActualHeight - puzzleSize)
+            bool moveVertical = true, moveHorizontal = true;
 
             for (int i = 0; i < tt.listName.Count; i++)
             {
-                if (Canvas.GetTop(tt.listName[i]) + e.VerticalChange >= 0)
-                    if (Canvas.GetTop(tt.listName[i]) + e.VerticalChange <= rectangle.ActualHeight - puzzleSize)
-                        Canvas.SetTop(tt.listName[i], Canvas.GetTop(tt.listName[i]) + e.VerticalChange);
-                    else
-                        Canvas.SetTop(tt.listName[i], rectangle.ActualHeight - puzzleSize);
-                else
-                    Canvas.SetTop(tt.listName[i], 0);
+                if (Canvas.GetTop(tt.listName[i]) + e.VerticalChange <= 0
+                    || Canvas.GetTop(tt.listName[i]) + e.VerticalChange >= rectangle.ActualHeight - puzzleSize)
+                    moveVertical = false;
+                if (Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange > rectangle.ActualWidth - puzzleSize
+                || Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange <= 0)
+                    moveHorizontal = false;
+            }
 
-                if (Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange < rectangle.ActualWidth - puzzleSize)
-                    if (Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange >= 0)
-                        Canvas.SetLeft(tt.listName[i], Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange);
-                    else
-                        Canvas.SetLeft(tt.listName[i], 0);
-                else
-                    Canvas.SetLeft(tt.listName[i], rectangle.ActualWidth - puzzleSize);
-
+            for (int i = 0; i < tt.listName.Count; i++)
+            {
+                if (moveVertical == true)
+                    Canvas.SetTop(tt.listName[i], Canvas.GetTop(tt.listName[i]) + e.VerticalChange);
+                if (moveHorizontal == true)
+                    Canvas.SetLeft(tt.listName[i], Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange);
                 tt.listName[i].BitmapEffect = shadowEffect;
             }
         }

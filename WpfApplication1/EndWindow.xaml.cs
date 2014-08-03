@@ -1,17 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Collections.ObjectModel;
 
 namespace WpfApplication1
 {
@@ -33,7 +23,7 @@ namespace WpfApplication1
         {
             MainWindow mw = this.Owner as MainWindow;
             timerLabel.Content = String.Format("{0}:{1}:{2}", (mw.seconds / 3600).ToString("00"), (mw.seconds / 60).ToString("00"), (mw.seconds % 60).ToString("00"));
-            
+
             for (int i = 0; i < mw.unionList.Count; i++)
                 if (mw.unionList[i].Count > max)
                     max = mw.unionList[i].Count;
@@ -72,42 +62,17 @@ namespace WpfApplication1
             switch (mw.gd.gameLevel)
             {
                 case 'h':
-                    mw.hardList.Add(new listItems
-                    {
-                        name = textboxName,
-                        counter = max,
-                        time = mw.seconds
-                    });
-
+                    mw.hardList.Add(new listItems { name = textboxName, counter = max, time = mw.seconds });
                     break;
                 case 'm':
-                    mw.mediumList.Add(new listItems
-                    {
-                        name = textboxName,
-                        counter = max,
-                        time = mw.seconds
-                    });
+                    mw.mediumList.Add(new listItems { name = textboxName, counter = max, time = mw.seconds });
                     break;
                 case 'e':
-                    mw.easyList.Add(new listItems
-                    {
-                        name = textboxName,
-                        counter = max,
-                        time = mw.seconds
-                    });
+                    mw.easyList.Add(new listItems { name = textboxName, counter = max, time = mw.seconds });
                     break;
-
             }
 
-            mw.start = true;
-            mw.startButton.Content = "Start Game";
-            mw.stream.Close();
-            mw.image.Background = null;
-            mw.pauseButton.IsEnabled = false;
-            mw.timer.Stop();
-            mw.timerLabel.Visibility = Visibility.Hidden;
-            mw.image.Children.Clear();
-            mw.unionList.Clear();
+            setNewGame(mw);
             this.Close();
         }
 
@@ -116,21 +81,24 @@ namespace WpfApplication1
             MainWindow mw = this.Owner as MainWindow;
 
             if (mw.gd.currentGameCounter == mw.maxCount)
-            {
-                mw.start = true;
-                mw.startButton.Content = "Start Game";
-                mw.pauseButton.IsEnabled = false;
-                mw.stream.Close();
-                mw.image.Background = null;
-                mw.timer.Stop();
-                mw.timerLabel.Visibility = Visibility.Hidden;
-                mw.unionList.Clear();
-                mw.image.Children.Clear();
-            }
+                setNewGame(mw);
+            else
+                mw.timer.Start();
 
             this.Close();
         }
 
-
+        private void setNewGame(MainWindow mw)
+        {
+            mw.start = true;
+            mw.startButton.Content = "Start Game";
+            mw.pauseButton.IsEnabled = false;
+            mw.stream.Close();
+            mw.image.Background = null;
+            mw.timer.Stop();
+            mw.timerLabel.Visibility = Visibility.Hidden;
+            mw.unionList.Clear();
+            mw.image.Children.Clear();
+        }
     }
 }
