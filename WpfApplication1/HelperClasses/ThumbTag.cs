@@ -13,9 +13,5 @@ namespace WpfApplication1
         public int x { get; set; }
         public int y { get; set; }
         public List<Thumb> listName { get; set; }
-        public Point maxLeft { get; set; }
-        public Point maxRight { get; set; }
-        public Point maxTop { get; set; }
-        public Point maxBottom { get; set; }
     }
 }

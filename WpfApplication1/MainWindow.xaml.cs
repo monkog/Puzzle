@@ -34,6 +34,8 @@ namespace WpfApplication1
         public Stream stream = null;
         DropShadowBitmapEffect shadowEffect;
         Thumb[,] thumbTab;
+        private const int MARGIN = 2;
+        private const int TOLERATION = 20;
 
         public ObservableCollection<listItems> hardList
         { get { return _hardList; } }
@@ -150,7 +152,7 @@ namespace WpfApplication1
                     imgBrush.Transform = new RotateTransform(rotationAng, -1 + (puzzleSize - 1) / 2, -1 + (puzzleSize - 1) / 2);
                     imgBrush.Stretch = Stretch.Fill;
 
-                    Thumb thmb = new Thumb() { Width = puzzleSize, Height = puzzleSize };
+                    Thumb thmb = new Thumb() { Width = puzzleSize - MARGIN, Height = puzzleSize - MARGIN };
                     Canvas.SetLeft(thmb, rnd.NextDouble() * (image.ActualWidth - puzzleSize));
                     Canvas.SetTop(thmb, rnd.NextDouble() * (image.ActualHeight - puzzleSize));
                     RotateTransform rt = new RotateTransform(angles[angle.Next(3)]);
@@ -164,7 +166,8 @@ namespace WpfApplication1
                     List<Thumb> newList = new List<Thumb>();
                     newList.Add(thmb);
                     unionList.Add(newList);
-                    thumbTag tt = new thumbTag { ib = imgBrush, rotationAngle = rotationAng, x = j, y = i, unionNr = i * maxWidth + j, listName = newList, maxBottom = new Point(j, i), maxTop = new Point(j, i), maxLeft = new Point(j, i), maxRight = new Point(j, i) };
+                    thumbTag tt = new thumbTag { ib = imgBrush, rotationAngle = rotationAng, x = j
+                        , y = i, unionNr = i * maxWidth + j, listName = newList };
                     thmb.Tag = tt;
                     thumbTab[i, j] = thmb;
                     image.Children.Add(thmb);
@@ -249,27 +252,17 @@ namespace WpfApplication1
                 {
                     thmb = tTag.listName[i];
                     tTag = (thumbTag)thmb.Tag;
-                    double x = Canvas.GetLeft(thmb);
-                    double y = Canvas.GetTop(thmb);
+                    double thmbLeft = Canvas.GetLeft(thmb);
+                    double thmbTop = Canvas.GetTop(thmb);
                     if (tTag.y < maxHeight - 1)
                     {
                         Thumb t = thumbTab[tTag.y + 1, tTag.x];
                         thumbTag tt = (thumbTag)t.Tag;
                         if (tt.listName != tTag.listName)
-                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) + puzzleSize + 20
-                                && Canvas.GetTop(t) > Canvas.GetTop(thmb) + puzzleSize - 20
-                                && Canvas.GetLeft(t) < Canvas.GetLeft(thmb) + 20 && Canvas.GetLeft(t) > Canvas.GetLeft(thmb) - 20)
+                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < thmbTop + puzzleSize + TOLERATION
+                                && Canvas.GetTop(t) > thmbTop + puzzleSize - TOLERATION
+                                && Canvas.GetLeft(t) < thmbLeft + TOLERATION && Canvas.GetLeft(t) > thmbLeft - TOLERATION)
                             {
-                                Point maxL = tTag.maxLeft;
-                                Point maxR = tTag.maxRight;
-                                Point maxT = tTag.maxTop;
-                                Point maxB = tTag.maxBottom;
-
-                                if (tt.maxBottom.Y > tTag.maxBottom.Y) maxB = tt.maxBottom;
-                                if (tt.maxRight.X > tTag.maxRight.X) maxR = tt.maxRight;
-                                if (tt.maxTop.Y < tTag.maxTop.Y) maxT = tt.maxTop;
-                                if (tt.maxLeft.X < tTag.maxLeft.X) maxL = tt.maxLeft;
-
                                 List<Thumb> l = tt.listName;
                                 while (l.Count != 0)
                                 {
@@ -284,18 +277,14 @@ namespace WpfApplication1
                                 Canvas.SetLeft(thmb, Canvas.GetLeft(t));
                                 Canvas.SetTop(thmb, Canvas.GetTop(t) - puzzleSize);
 
-                                double deltaX = Canvas.GetLeft(thmb) - x;
-                                double deltaY = Canvas.GetTop(thmb) - y;
+                                double deltaX = Canvas.GetLeft(thmb) - thmbLeft;
+                                double deltaY = Canvas.GetTop(thmb) - thmbTop;
 
                                 for (int j = 0; j < tTag.listName.Count; j++)
                                 {
                                     Canvas.SetLeft(tTag.listName[j], Canvas.GetLeft(tTag.listName[j]) - deltaX);
                                     Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
                                     thumbTag tht = (thumbTag)tTag.listName[j].Tag;
-                                    tht.maxBottom = maxB;
-                                    tht.maxLeft = maxL;
-                                    tht.maxRight = maxR;
-                                    tht.maxTop = maxT;
                                 }
                             }
                     }
@@ -305,18 +294,11 @@ namespace WpfApplication1
                         Thumb t = thumbTab[tTag.y - 1, tTag.x];
                         thumbTag tt = (thumbTag)t.Tag;
                         if (tt.listName != tTag.listName)
-                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) - puzzleSize + 20 && Canvas.GetTop(t) > Canvas.GetTop(thmb) - puzzleSize - 20 && Canvas.GetLeft(t) < Canvas.GetLeft(thmb) + 20 && Canvas.GetLeft(t) > Canvas.GetLeft(thmb) - 20)
+                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) - puzzleSize + TOLERATION
+                                && Canvas.GetTop(t) > Canvas.GetTop(thmb) - puzzleSize - TOLERATION
+                                && Canvas.GetLeft(t) < Canvas.GetLeft(thmb) + TOLERATION
+                                && Canvas.GetLeft(t) > Canvas.GetLeft(thmb) - TOLERATION)
                             {
-                                Point maxL = tTag.maxLeft;
-                                Point maxR = tTag.maxRight;
-                                Point maxT = tTag.maxTop;
-                                Point maxB = tTag.maxBottom;
-
-                                if (tt.maxBottom.Y > tTag.maxBottom.Y) maxB = tt.maxBottom;
-                                if (tt.maxRight.X > tTag.maxRight.X) maxR = tt.maxRight;
-                                if (tt.maxTop.Y < tTag.maxTop.Y) maxT = tt.maxTop;
-                                if (tt.maxLeft.X < tTag.maxLeft.X) maxL = tt.maxLeft;
-
                                 List<Thumb> l = tt.listName;
                                 while (l.Count != 0)
                                 {
@@ -331,18 +313,14 @@ namespace WpfApplication1
                                 Canvas.SetLeft(thmb, Canvas.GetLeft(t));
                                 Canvas.SetTop(thmb, Canvas.GetTop(t) + puzzleSize);
 
-                                double deltaX = Canvas.GetLeft(thmb) - x;
-                                double deltaY = Canvas.GetTop(thmb) - y;
+                                double deltaX = Canvas.GetLeft(thmb) - thmbLeft;
+                                double deltaY = Canvas.GetTop(thmb) - thmbTop;
 
                                 for (int j = 0; j < tTag.listName.Count; j++)
                                 {
                                     Canvas.SetLeft(tTag.listName[j], Canvas.GetLeft(tTag.listName[j]) - deltaX);
                                     Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
                                     thumbTag tht = (thumbTag)tTag.listName[j].Tag;
-                                    tht.maxBottom = maxB;
-                                    tht.maxLeft = maxL;
-                                    tht.maxRight = maxR;
-                                    tht.maxTop = maxT;
                                 }
                             }
                     }
@@ -352,18 +330,11 @@ namespace WpfApplication1
                         Thumb t = thumbTab[tTag.y, tTag.x - 1];
                         thumbTag tt = (thumbTag)t.Tag;
                         if (tt.listName != tTag.listName)
-                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) + 20 && Canvas.GetTop(t) > Canvas.GetTop(thmb) - 20 && Canvas.GetLeft(t) + puzzleSize < Canvas.GetLeft(thmb) + 20 && Canvas.GetLeft(t) + puzzleSize > Canvas.GetLeft(thmb) - 20)
+                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) + TOLERATION
+                                && Canvas.GetTop(t) > Canvas.GetTop(thmb) - TOLERATION
+                                && Canvas.GetLeft(t) + puzzleSize < Canvas.GetLeft(thmb) + TOLERATION
+                                && Canvas.GetLeft(t) + puzzleSize > Canvas.GetLeft(thmb) - TOLERATION)
                             {
-                                Point maxL = tTag.maxLeft;
-                                Point maxR = tTag.maxRight;
-                                Point maxT = tTag.maxTop;
-                                Point maxB = tTag.maxBottom;
-
-                                if (tt.maxBottom.Y > tTag.maxBottom.Y) maxB = tt.maxBottom;
-                                if (tt.maxRight.X > tTag.maxRight.X) maxR = tt.maxRight;
-                                if (tt.maxTop.Y < tTag.maxTop.Y) maxT = tt.maxTop;
-                                if (tt.maxLeft.X < tTag.maxLeft.X) maxL = tt.maxLeft;
-
                                 List<Thumb> l = tt.listName;
                                 while (l.Count != 0)
                                 {
@@ -378,18 +349,14 @@ namespace WpfApplication1
                                 Canvas.SetLeft(thmb, Canvas.GetLeft(t) + puzzleSize);
                                 Canvas.SetTop(thmb, Canvas.GetTop(t));
 
-                                double deltaX = Canvas.GetLeft(thmb) - x;
-                                double deltaY = Canvas.GetTop(thmb) - y;
+                                double deltaX = Canvas.GetLeft(thmb) - thmbLeft;
+                                double deltaY = Canvas.GetTop(thmb) - thmbTop;
 
                                 for (int j = 0; j < tTag.listName.Count; j++)
                                 {
                                     Canvas.SetLeft(tTag.listName[j], Canvas.GetLeft(tTag.listName[j]) - deltaX);
                                     Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
                                     thumbTag tht = (thumbTag)tTag.listName[j].Tag;
-                                    tht.maxBottom = maxB;
-                                    tht.maxLeft = maxL;
-                                    tht.maxRight = maxR;
-                                    tht.maxTop = maxT;
                                 }
                             }
                     }
@@ -399,18 +366,11 @@ namespace WpfApplication1
                         Thumb t = thumbTab[tTag.y, tTag.x + 1];
                         thumbTag tt = (thumbTag)t.Tag;
                         if (tt.listName != tTag.listName)
-                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) + 20 && Canvas.GetTop(t) > Canvas.GetTop(thmb) - 20 && Canvas.GetLeft(t) < Canvas.GetLeft(thmb) + puzzleSize + 20 && Canvas.GetLeft(t) > Canvas.GetLeft(thmb) + puzzleSize - 20)
+                            if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) + TOLERATION
+                                && Canvas.GetTop(t) > Canvas.GetTop(thmb) - TOLERATION
+                                && Canvas.GetLeft(t) < Canvas.GetLeft(thmb) + puzzleSize + TOLERATION
+                                && Canvas.GetLeft(t) > Canvas.GetLeft(thmb) + puzzleSize - TOLERATION)
                             {
-                                Point maxL = tTag.maxLeft;
-                                Point maxR = tTag.maxRight;
-                                Point maxT = tTag.maxTop;
-                                Point maxB = tTag.maxBottom;
-
-                                if (tt.maxBottom.Y > tTag.maxBottom.Y) maxB = tt.maxBottom;
-                                if (tt.maxRight.X > tTag.maxRight.X) maxR = tt.maxRight;
-                                if (tt.maxTop.Y < tTag.maxTop.Y) maxT = tt.maxTop;
-                                if (tt.maxLeft.X < tTag.maxLeft.X) maxL = tt.maxLeft;
-
                                 List<Thumb> l = tt.listName;
                                 while (l.Count != 0)
                                 {
@@ -425,8 +385,8 @@ namespace WpfApplication1
                                 Canvas.SetLeft(thmb, Canvas.GetLeft(t) - puzzleSize);
                                 Canvas.SetTop(thmb, Canvas.GetTop(t));
 
-                                double deltaX = Canvas.GetLeft(thmb) - x;
-                                double deltaY = Canvas.GetTop(thmb) - y;
+                                double deltaX = Canvas.GetLeft(thmb) - thmbLeft;
+                                double deltaY = Canvas.GetTop(thmb) - thmbTop;
 
                                 for (int j = 0; j < tTag.listName.Count; j++)
                                 {
@@ -434,10 +394,6 @@ namespace WpfApplication1
                                     Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
 
                                     thumbTag tht = (thumbTag)tTag.listName[j].Tag;
-                                    tht.maxBottom = maxB;
-                                    tht.maxLeft = maxL;
-                                    tht.maxRight = maxR;
-                                    tht.maxTop = maxT;
                                 }
                             }
                     }
@@ -496,32 +452,4 @@ namespace WpfApplication1
 
         #endregion
     }
-
-    //public static class ObservableCollectionSorted<T> 
-    //{
-    //public void collectionSort<TSource, TKey>(this Collection<TSource> source, Func<TSource, TKey> keySelector)
-    //{
-    //    List<TSource> sortedList = source.OrderBy(keySelector).ToList();
-    //    source.Clear();
-    //    foreach (var sortedItem in sortedList)
-    //        source.Add(sortedItem);
-    //}
-
-
-    //}
-
-
-    //List<listItems> li = hardList.ToList<listItems>();
-    //Func<List<listItems>> f = new Func<List<listItems>>(li.Sort);
-
-    //collectionSort<listItems, int>(hardList, (a => a.time));
-
-
-    //public void collectionSort<TSource, TKey>(this Collection<TSource> source, Func<TSource, TKey> keySelector)
-    //{
-    //    List<TSource> sortedList = source.OrderBy(keySelector).ToList();
-    //    source.Clear();
-    //    foreach (var sortedItem in sortedList)
-    //        source.Add(sortedItem);
-    //}
 }
