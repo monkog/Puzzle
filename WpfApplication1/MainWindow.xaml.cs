@@ -271,31 +271,32 @@ namespace WpfApplication1
                 double thmbLeft = Canvas.GetLeft(thmb);
                 double thmbTop = Canvas.GetTop(thmb);
                 if (tTag.y < maxHeight - 1)
-                    checkBottomThumb(thmb, tTag, thmbLeft, thmbTop);
+                    chckThumb(DOWN, thmb, tTag, thmbLeft, thmbTop);
 
                 if (tTag.y > 0)
-                    checkTopThumb(thmb, tTag, thmbLeft, thmbTop);
+                    chckThumb(UP, thmb, tTag, thmbLeft, thmbTop);
 
                 if (tTag.x > 0)
-                    checkLeftThumb(thmb, tTag, thmbLeft, thmbTop);
+                    chckThumb(LEFT, thmb, tTag, thmbLeft, thmbTop);
 
                 if (tTag.x < maxWidth - 1)
-                    chckRightThumb(thmb, tTag, thmbLeft, thmbTop);
+                    chckThumb(RIGHT, thmb, tTag, thmbLeft, thmbTop);
 
                 if (unionList.Count == 1)
                     endGame();
             }
         }
 
-        private void chckRightThumb(Thumb thmb, thumbTag tTag, double thmbLeft, double thmbTop)
+        private void chckThumb(Point direction, Thumb thmb, thumbTag tTag, double thmbLeft, double thmbTop)
         {
-            Thumb checkThumb = thumbTab[tTag.y, tTag.x + 1];
+            Thumb checkThumb = thumbTab[tTag.y + (int)direction.Y, tTag.x + (int)direction.X];
             thumbTag checkTTag = (thumbTag)checkThumb.Tag;
             if (checkTTag.listName != tTag.listName)
-                if (checkTTag.rotationAngle == 0 && Canvas.GetTop(checkThumb) < Canvas.GetTop(thmb) + TOLERATION
-                    && Canvas.GetTop(checkThumb) > Canvas.GetTop(thmb) - TOLERATION
-                    && Canvas.GetLeft(checkThumb) < Canvas.GetLeft(thmb) + puzzleSize + TOLERATION
-                    && Canvas.GetLeft(checkThumb) > Canvas.GetLeft(thmb) + puzzleSize - TOLERATION)
+                if (checkTTag.rotationAngle == 0
+                    && Canvas.GetTop(checkThumb) < Canvas.GetTop(thmb) + (int)direction.Y * puzzleSize + TOLERATION
+                    && Canvas.GetTop(checkThumb) > Canvas.GetTop(thmb) + (int)direction.Y * puzzleSize - TOLERATION
+                    && Canvas.GetLeft(checkThumb) < Canvas.GetLeft(thmb) + (int)direction.X * puzzleSize + TOLERATION
+                    && Canvas.GetLeft(checkThumb) > Canvas.GetLeft(thmb) + (int)direction.X * puzzleSize - TOLERATION)
                 {
                     List<Thumb> l = checkTTag.listName;
                     while (l.Count != 0)
@@ -308,117 +309,13 @@ namespace WpfApplication1
 
                     unionList.Remove(l);
 
-                    Canvas.SetLeft(thmb, Canvas.GetLeft(checkThumb) - puzzleSize);
-                    Canvas.SetTop(thmb, Canvas.GetTop(checkThumb));
+                    Canvas.SetLeft(thmb, Canvas.GetLeft(checkThumb) - (int)direction.X * puzzleSize);
+                    Canvas.SetTop(thmb, Canvas.GetTop(checkThumb) - (int)direction.Y * puzzleSize);
 
                     double deltaX = Canvas.GetLeft(thmb) - thmbLeft;
                     double deltaY = Canvas.GetTop(thmb) - thmbTop;
 
                     for (int j = 0; j < tTag.listName.Count && tTag.listName[j] != thmb && tTag.listName[j] != checkThumb; j++)
-                    {
-                        Canvas.SetLeft(tTag.listName[j], Canvas.GetLeft(tTag.listName[j]) - deltaX);
-                        Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
-                    }
-                }
-        }
-
-        private void checkLeftThumb(Thumb thmb, thumbTag tTag, double thmbLeft, double thmbTop)
-        {
-            Thumb t = thumbTab[tTag.y, tTag.x - 1];
-            thumbTag tt = (thumbTag)t.Tag;
-            if (tt.listName != tTag.listName)
-                if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) + TOLERATION
-                    && Canvas.GetTop(t) > Canvas.GetTop(thmb) - TOLERATION
-                    && Canvas.GetLeft(t) + puzzleSize < Canvas.GetLeft(thmb) + TOLERATION
-                    && Canvas.GetLeft(t) + puzzleSize > Canvas.GetLeft(thmb) - TOLERATION)
-                {
-                    List<Thumb> l = tt.listName;
-                    while (l.Count != 0)
-                    {
-                        tTag.listName.Add(l[l.Count - 1]);
-                        thumbTag ltt = (thumbTag)l[l.Count - 1].Tag;
-                        ltt.listName = tTag.listName;
-                        l.Remove(l[l.Count - 1]);
-                    }
-
-                    unionList.Remove(l);
-
-                    Canvas.SetLeft(thmb, Canvas.GetLeft(t) + puzzleSize);
-                    Canvas.SetTop(thmb, Canvas.GetTop(t));
-
-                    double deltaX = Canvas.GetLeft(thmb) - thmbLeft;
-                    double deltaY = Canvas.GetTop(thmb) - thmbTop;
-
-                    for (int j = 0; j < tTag.listName.Count && tTag.listName[j] != thmb && tTag.listName[j] != t; j++)
-                    {
-                        Canvas.SetLeft(tTag.listName[j], Canvas.GetLeft(tTag.listName[j]) - deltaX);
-                        Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
-                    }
-                }
-        }
-
-        private void checkTopThumb(Thumb thmb, thumbTag tTag, double thmbLeft, double thmbTop)
-        {
-            Thumb t = thumbTab[tTag.y - 1, tTag.x];
-            thumbTag tt = (thumbTag)t.Tag;
-            if (tt.listName != tTag.listName)
-                if (tt.rotationAngle == 0 && Canvas.GetTop(t) < Canvas.GetTop(thmb) - puzzleSize + TOLERATION
-                    && Canvas.GetTop(t) > Canvas.GetTop(thmb) - puzzleSize - TOLERATION
-                    && Canvas.GetLeft(t) < Canvas.GetLeft(thmb) + TOLERATION
-                    && Canvas.GetLeft(t) > Canvas.GetLeft(thmb) - TOLERATION)
-                {
-                    List<Thumb> l = tt.listName;
-                    while (l.Count != 0)
-                    {
-                        tTag.listName.Add(l[l.Count - 1]);
-                        thumbTag ltt = (thumbTag)l[l.Count - 1].Tag;
-                        ltt.listName = tTag.listName;
-                        l.Remove(l[l.Count - 1]);
-                    }
-
-                    unionList.Remove(l);
-
-                    Canvas.SetLeft(thmb, Canvas.GetLeft(t));
-                    Canvas.SetTop(thmb, Canvas.GetTop(t) + puzzleSize);
-
-                    double deltaX = Canvas.GetLeft(thmb) - thmbLeft;
-                    double deltaY = Canvas.GetTop(thmb) - thmbTop;
-
-                    for (int j = 0; j < tTag.listName.Count && tTag.listName[j] != thmb && tTag.listName[j] != t; j++)
-                    {
-                        Canvas.SetLeft(tTag.listName[j], Canvas.GetLeft(tTag.listName[j]) - deltaX);
-                        Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
-                    }
-                }
-        }
-
-        private void checkBottomThumb(Thumb thmb, thumbTag tTag, double thmbLeft, double thmbTop)
-        {
-            Thumb t = thumbTab[tTag.y + 1, tTag.x];
-            thumbTag tt = (thumbTag)t.Tag;
-            if (tt.listName != tTag.listName)
-                if (tt.rotationAngle == 0 && Canvas.GetTop(t) < thmbTop + puzzleSize + TOLERATION
-                    && Canvas.GetTop(t) > thmbTop + puzzleSize - TOLERATION
-                    && Canvas.GetLeft(t) < thmbLeft + TOLERATION && Canvas.GetLeft(t) > thmbLeft - TOLERATION)
-                {
-                    List<Thumb> l = tt.listName;
-                    while (l.Count != 0)
-                    {
-                        tTag.listName.Add(l[l.Count - 1]);
-                        thumbTag ltt = (thumbTag)l[l.Count - 1].Tag;
-                        ltt.listName = tTag.listName;
-                        l.Remove(l[l.Count - 1]);
-                    }
-
-                    unionList.Remove(l);
-
-                    Canvas.SetLeft(thmb, Canvas.GetLeft(t));
-                    Canvas.SetTop(thmb, Canvas.GetTop(t) - puzzleSize);
-
-                    double deltaX = Canvas.GetLeft(thmb) - thmbLeft;
-                    double deltaY = Canvas.GetTop(thmb) - thmbTop;
-
-                    for (int j = 0; j < tTag.listName.Count && tTag.listName[j] != thmb && tTag.listName[j] != t; j++)
                     {
                         Canvas.SetLeft(tTag.listName[j], Canvas.GetLeft(tTag.listName[j]) - deltaX);
                         Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
