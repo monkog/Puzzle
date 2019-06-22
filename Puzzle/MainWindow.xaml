@@ -1,10 +1,10 @@
-﻿<Window x:Class="WpfApplication1.MainWindow"
+﻿<Window x:Class="Puzzle.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="Puzzles" Height="600" Width="800"
         MinHeight="450" MinWidth="600"
-        Icon="/WpfApplication1;component/Images/icon.ico" WindowStartupLocation="CenterScreen">
+        Icon="/Puzzle;component/Images/icon.ico" WindowStartupLocation="CenterScreen">
     <Grid>
         <TabControl>
             <TabItem Header="Game">

@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace WpfApplication1
+namespace Puzzle
 {
     public partial class MainWindow
     {

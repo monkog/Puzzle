@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
-namespace WpfApplication1
+namespace Puzzle.HelperClasses
 {
     public class thumbTag
     {

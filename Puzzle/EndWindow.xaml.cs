@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Documents;
+using Puzzle.HelperClasses;
 
-namespace WpfApplication1
+namespace Puzzle
 {
     /// <summary>
     /// Interaction logic for EndWindow.xaml

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.IO;
-using System.Collections.ObjectModel;
 using System.Windows.Media.Effects;
-using System.ComponentModel;
-using System.Windows.Controls.Primitives;
+using System.Windows.Media.Imaging;
+using Puzzle.HelperClasses;
 
-namespace WpfApplication1
+namespace Puzzle
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

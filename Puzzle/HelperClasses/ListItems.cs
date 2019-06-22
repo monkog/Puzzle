@@ -1,5 +1,5 @@
 ﻿
-namespace WpfApplication1
+namespace Puzzle.HelperClasses
 {
     public class listItems
     {
