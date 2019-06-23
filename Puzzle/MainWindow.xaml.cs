@@ -205,7 +205,6 @@ namespace Puzzle
             gd.FinishGame();
             EndWindow ew = new EndWindow();
             ew.Owner = this;
-            ew.ShowInTaskbar = false;
             ew.ShowDialog();
         }
 
