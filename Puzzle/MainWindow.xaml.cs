@@ -23,7 +23,7 @@ namespace Puzzle
 
 		private readonly Random _random = new Random();
 
-		private Dictionary<Thumb, PuzzlePiece> _puzzles;
+		private PuzzleCollection _puzzles;
 
 		/// <summary>
 		/// Gets the game details;
@@ -40,7 +40,6 @@ namespace Puzzle
 		private int _zCoordinate = int.MinValue + 1;
 		public Stream stream;
 		private readonly DropShadowEffect _shadowEffect;
-		private Thumb[,] _thumbTab;
 		private const int Toleration = 20;
 		private readonly Point LEFT = new Point { X = -1, Y = 0 };
 		private Point RIGHT = new Point { X = 1, Y = 0 };
@@ -147,8 +146,7 @@ namespace Puzzle
 
 		private void CreatePuzzle(BitmapSource image)
 		{
-			_thumbTab = new Thumb[GameDetails.Rows, GameDetails.Columns];
-			_puzzles = new Dictionary<Thumb, PuzzlePiece>();
+			_puzzles = new PuzzleCollection();
 
 			for (var row = 0; row < GameDetails.Rows; row++)
 				for (var column = 0; column < GameDetails.Columns; column++)
@@ -177,7 +175,6 @@ namespace Puzzle
 			var newList = new List<Thumb> { puzzle };
 			ConnectedPieces.Add(newList);
 
-			_thumbTab[row, column] = puzzle;
 			SetPuzzleEventHandlers(puzzle);
 			GameImage.Children.Add(puzzle);
 
@@ -247,19 +244,22 @@ namespace Puzzle
 			var puzzlePiece = _puzzles[puzzle];
 
 			if (puzzlePiece.RotationAngle == 0)
-				ConnectPuzzles(connectedPieces, puzzlePiece);
+				ConnectPuzzles(connectedPieces);
 
 			foreach (var piece in connectedPieces)
 				piece.Effect = null;
 		}
 
-		private void ConnectPuzzles(List<Thumb> connectedPieces, PuzzlePiece puzzlePiece)
+		private void ConnectPuzzles(List<Thumb> connectedPieces)
 		{
 			for (var i = 0; i < connectedPieces.Count; i++)
 			{
 				var puzzle = connectedPieces[i];
+				var puzzlePiece = _puzzles[puzzle];
+
 				var left = Canvas.GetLeft(puzzle);
 				var top = Canvas.GetTop(puzzle);
+
 				if (puzzlePiece.Row < GameDetails.Rows - 1)
 					CheckPuzzle(DOWN, puzzle, connectedPieces, puzzlePiece, left, top);
 
@@ -280,8 +280,9 @@ namespace Puzzle
 
 		private void CheckPuzzle(Point direction, UIElement puzzle, List<Thumb> connectedPieces, PuzzlePiece puzzlePiece, double left, double top)
 		{
-			var checkThumb = _thumbTab[puzzlePiece.Row + (int)direction.Y, puzzlePiece.Column + (int)direction.X];
-			var checkPuzzlePiece = _puzzles[checkThumb];
+			var checkPuzzle = _puzzles[puzzlePiece.Row + (int)direction.Y, puzzlePiece.Column + (int)direction.X];
+			var checkThumb = checkPuzzle.Key;
+			var checkPuzzlePiece = checkPuzzle.Value;
 
 			if (checkPuzzlePiece.RotationAngle != 0) return;
 			var checkConnectedPieces = ConnectedPieces.Single(u => u.Contains(checkThumb));

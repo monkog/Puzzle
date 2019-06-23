@@ -58,6 +58,7 @@
     <Compile Include="Game\GameDetails.cs" />
     <Compile Include="Game\HighScoreRecord.cs" />
     <Compile Include="Game\HighScores.cs" />
+    <Compile Include="Game\PuzzleCollection.cs" />
     <Compile Include="Game\PuzzlePiece.cs" />
     <Compile Include="TimeManaging.cs" />
     <Page Include="EndWindow.xaml">
@@ -113,9 +114,7 @@
   <ItemGroup>
     <Resource Include="Images\pause.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="HelperClasses\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
