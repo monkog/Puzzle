@@ -22,7 +22,7 @@ namespace Puzzle
         #region variables
 
         public List<List<Thumb>> unionList = new List<List<Thumb>>();
-        public gameDetails gd = new gameDetails();
+        public GameDetails gd = new GameDetails();
         public bool start = true;
         public ObservableCollection<listItems> _easyList = new ObservableCollection<listItems>(),
             _mediumList = new ObservableCollection<listItems>(),
@@ -83,7 +83,7 @@ namespace Puzzle
         {
             if (start)
             {
-                gd = new gameDetails { gameLevel = level, gameMaxCounter = maxCount, currentGameCounter = 1 };
+                gd = new GameDetails { gameLevel = level, gameMaxCounter = maxCount, currentGameCounter = 1 };
                 Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
                 dlg.Filter = "Image Files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png";
 

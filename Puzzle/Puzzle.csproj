@@ -54,6 +54,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Game\Difficulty.cs" />
     <Compile Include="HelperClasses\GameDetails.cs" />
     <Compile Include="HelperClasses\ListItems.cs" />
     <Compile Include="HelperClasses\ThumbTag.cs" />
