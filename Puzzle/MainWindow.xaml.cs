@@ -19,7 +19,7 @@ namespace Puzzle
 	/// </summary>
 	public partial class MainWindow
 	{
-		#region variables
+		private const int Tolerance = 20;
 
 		private readonly Random _random = new Random();
 
@@ -40,13 +40,6 @@ namespace Puzzle
 		private int _zCoordinate = int.MinValue + 1;
 		public Stream stream;
 		private readonly DropShadowEffect _shadowEffect;
-		private const int Toleration = 20;
-		private readonly Point LEFT = new Point { X = -1, Y = 0 };
-		private Point RIGHT = new Point { X = 1, Y = 0 };
-		private Point UP = new Point { X = 0, Y = -1 };
-		private Point DOWN = new Point { X = 0, Y = 1 };
-
-		#endregion
 
 		public MainWindow()
 		{
@@ -263,16 +256,16 @@ namespace Puzzle
 				var top = Canvas.GetTop(puzzle);
 
 				if (puzzlePiece.Row < GameDetails.Rows - 1)
-					if (TryConnectWithPuzzle(DOWN, puzzle, connectedPieces, puzzlePiece, left, top)) break;
+					if (TryConnectWithPuzzle(Direction.Down, puzzle, connectedPieces, puzzlePiece, left, top)) break;
 
 				if (puzzlePiece.Row > 0)
-					if (TryConnectWithPuzzle(UP, puzzle, connectedPieces, puzzlePiece, left, top)) break;
+					if (TryConnectWithPuzzle(Direction.Up, puzzle, connectedPieces, puzzlePiece, left, top)) break;
 
 				if (puzzlePiece.Column > 0)
-					if (TryConnectWithPuzzle(LEFT, puzzle, connectedPieces, puzzlePiece, left, top)) break;
+					if (TryConnectWithPuzzle(Direction.Left, puzzle, connectedPieces, puzzlePiece, left, top)) break;
 
 				if (puzzlePiece.Column < GameDetails.Columns - 1)
-					if (TryConnectWithPuzzle(RIGHT, puzzle, connectedPieces, puzzlePiece, left, top)) break;
+					if (TryConnectWithPuzzle(Direction.Right, puzzle, connectedPieces, puzzlePiece, left, top)) break;
 			}
 		}
 
@@ -307,10 +300,10 @@ namespace Puzzle
 
 		private bool AreCloseToEachOther(Point direction, UIElement puzzle, UIElement checkThumb)
 		{
-			return Canvas.GetTop(checkThumb) < Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize + Toleration &&
-				   Canvas.GetTop(checkThumb) > Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize - Toleration &&
-				   Canvas.GetLeft(checkThumb) < Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize + Toleration &&
-				   Canvas.GetLeft(checkThumb) > Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize - Toleration;
+			return Canvas.GetTop(checkThumb) < Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize + Tolerance &&
+				   Canvas.GetTop(checkThumb) > Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize - Tolerance &&
+				   Canvas.GetLeft(checkThumb) < Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize + Tolerance &&
+				   Canvas.GetLeft(checkThumb) > Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize - Tolerance;
 		}
 
 		private void EndGame()

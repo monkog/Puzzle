@@ -55,6 +55,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Game\Difficulty.cs" />
+    <Compile Include="Game\Direction.cs" />
     <Compile Include="Game\GameDetails.cs" />
     <Compile Include="Game\HighScoreRecord.cs" />
     <Compile Include="Game\HighScores.cs" />
