@@ -177,7 +177,7 @@ namespace Puzzle
 			puzzle.Background = imgBrush;
 			var newList = new List<Thumb> { puzzle };
 			UnionList.Add(newList);
-			puzzle.Tag = new thumbTag { unionNr = row * GameDetails.Columns + column, listName = newList };
+			puzzle.Tag = new thumbTag { listName = newList };
 
 			_thumbTab[row, column] = puzzle;
 			SetThumbEventHandlers(puzzle);
