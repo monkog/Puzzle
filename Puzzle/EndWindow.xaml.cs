@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
+using Puzzle.Game;
 using Puzzle.HelperClasses;
 
 namespace Puzzle
@@ -30,8 +31,8 @@ namespace Puzzle
 
 			max = mw.unionList.Max(i => i.Count);
 
-			if (mw.gd.currentGameCounter == mw.maxCount)
-				WonLabel.Content = $"You won! You connected all {mw.gd.currentGameCounter} puzzles. Your time:";
+			if (mw.gd.Points == mw.gd.PuzzleCount)
+				WonLabel.Content = $"You won! You connected all {mw.gd.Points} puzzles. Your time:";
 			else
 				WonLabel.Content = $"You connected only {max} puzzle(s). Your time:";
 		}
@@ -44,15 +45,15 @@ namespace Puzzle
 			if (name == string.Empty)
 				name = "John Doe";
 
-			switch (mw.gd.gameLevel)
+			switch (mw.gd.Difficulty)
 			{
-				case 'h':
+				case Difficulty.Hard:
 					mw.hardList.Add(new listItems { name = name, counter = max, time = mw.seconds });
 					break;
-				case 'm':
+				case Difficulty.Medium:
 					mw.mediumList.Add(new listItems { name = name, counter = max, time = mw.seconds });
 					break;
-				case 'e':
+				case Difficulty.Easy:
 					mw.easyList.Add(new listItems { name = name, counter = max, time = mw.seconds });
 					break;
 			}
@@ -65,7 +66,7 @@ namespace Puzzle
 		{
 			var mw = Owner as MainWindow;
 
-			if (mw.gd.currentGameCounter == mw.maxCount)
+			if (mw.gd.Points == mw.gd.PuzzleCount)
 				NewGame(mw);
 			else
 				mw.timer.Start();

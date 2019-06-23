@@ -46,9 +46,9 @@
 
 						<GroupBox Grid.Row="2" Header="Puzzle size" Margin="0,10">
 							<StackPanel>
-								<RadioButton Name="hardRadio"  GroupName="PuzzleSize" Content="Hard" IsChecked="True" Checked="hardRadio_Checked"/>
-								<RadioButton Name="mediumRadio" GroupName="PuzzleSize" Content="Medium" Checked="mediumRadio_Checked"/>
-								<RadioButton Name="easyRadio" GroupName="PuzzleSize" Content="Easy" Checked="easyRadio_Checked"/>
+								<RadioButton Name="hardRadio"  GroupName="PuzzleSize" Content="Hard" IsChecked="True"/>
+								<RadioButton Name="mediumRadio" GroupName="PuzzleSize" Content="Medium"/>
+								<RadioButton Name="easyRadio" GroupName="PuzzleSize" Content="Easy"/>
 							</StackPanel>
 						</GroupBox>
 
