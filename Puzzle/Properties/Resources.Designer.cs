@@ -80,6 +80,15 @@ namespace Puzzle.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Image Files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png.
+        /// </summary>
+        internal static string ImageFilesExtensions {
+            get {
+                return ResourceManager.GetString("ImageFilesExtensions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You connected only {0} puzzle(s). Your time:.
         /// </summary>
         internal static string NotAllPiecesConnectedMessage {

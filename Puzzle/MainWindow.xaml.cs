@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
+using Microsoft.Win32;
 using Puzzle.Game;
 
 namespace Puzzle
@@ -75,34 +76,31 @@ namespace Puzzle
 
 		private void StartButtonClick(object sender, RoutedEventArgs e)
 		{
-			if (!_isGameRunning)
-			{
-				Difficulty difficulty;
-				if (HardRadio.IsChecked.Value) difficulty = Difficulty.Hard;
-				else if (MediumRadio.IsChecked.Value) difficulty = Difficulty.Medium;
-				else difficulty = Difficulty.Easy;
-				GameDetails = new GameDetails(difficulty);
-				var dlg = new Microsoft.Win32.OpenFileDialog();
-				dlg.Filter = "Image Files (*.bmp, *.jpg, *.png)|*.bmp;*.jpg;*.png";
-
-				if (dlg.ShowDialog() == true)
-				{
-					var image = OpenChosenFile(dlg.FileName);
-					if (image == null)
-						return;
-
-					CreatePuzzle(image);
-					new_timer();
-
-					StartButton.Content = "End game";
-					PauseButton.IsEnabled = true;
-					_isGameRunning = true;
-				}
-			}
-			else
+			if (_isGameRunning)
 			{
 				EndGame();
+				return;
 			}
+
+			var openFileDialog = new OpenFileDialog { Filter = Properties.Resources.ImageFilesExtensions };
+			if (openFileDialog.ShowDialog() != true) return;
+
+			var image = OpenChosenFile(openFileDialog.FileName);
+			if (image == null)
+				return;
+
+			Difficulty difficulty;
+			if (HardRadio.IsChecked == true) difficulty = Difficulty.Hard;
+			else if (MediumRadio.IsChecked == true) difficulty = Difficulty.Medium;
+			else difficulty = Difficulty.Easy;
+			GameDetails = new GameDetails(difficulty);
+
+			CreatePuzzle(image);
+			new_timer();
+
+			StartButton.Content = "End game";
+			PauseButton.IsEnabled = true;
+			_isGameRunning = true;
 		}
 
 		private void NewGame()
@@ -292,7 +290,7 @@ namespace Puzzle
 			var deltaX = Canvas.GetLeft(puzzle) - left;
 			var deltaY = Canvas.GetTop(puzzle) - top;
 
-			foreach (var piece in connectedPieces.Where(p => p!= puzzle))
+			foreach (var piece in connectedPieces.Where(p => p != puzzle))
 			{
 				Canvas.SetLeft(piece, Canvas.GetLeft(piece) + deltaX);
 				Canvas.SetTop(piece, Canvas.GetTop(piece) + deltaY);
