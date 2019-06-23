@@ -39,10 +39,7 @@ namespace Puzzle
 
 		private List<List<Thumb>> _connectedPieces;
 
-		/// <summary>
-		/// Gets the game details;
-		/// </summary>
-		public GameDetails GameDetails { get; private set; }
+		private GameDetails _gameDetails;
 
 		/// <summary>
 		/// Gets the collection of high scores.
@@ -94,7 +91,7 @@ namespace Puzzle
 			if (HardRadio.IsChecked == true) difficulty = Difficulty.Hard;
 			else if (MediumRadio.IsChecked == true) difficulty = Difficulty.Medium;
 			else difficulty = Difficulty.Easy;
-			GameDetails = new GameDetails(difficulty);
+			_gameDetails = new GameDetails(difficulty);
 
 			CreatePuzzle(image);
 			ResetTimer();
@@ -121,12 +118,12 @@ namespace Puzzle
 			_puzzles = new PuzzleCollection();
 			_connectedPieces = new List<List<Thumb>>();
 
-			for (var row = 0; row < GameDetails.Rows; row++)
-				for (var column = 0; column < GameDetails.Columns; column++)
+			for (var row = 0; row < _gameDetails.Rows; row++)
+				for (var column = 0; column < _gameDetails.Columns; column++)
 				{
 					var bitmap = new CroppedBitmap(image
-						, new Int32Rect(column * image.PixelWidth / GameDetails.Columns, row * image.PixelHeight / GameDetails.Rows
-							, image.PixelWidth / GameDetails.Columns, image.PixelHeight / GameDetails.Rows));
+						, new Int32Rect(column * image.PixelWidth / _gameDetails.Columns, row * image.PixelHeight / _gameDetails.Rows
+							, image.PixelWidth / _gameDetails.Columns, image.PixelHeight / _gameDetails.Rows));
 					var imgBrush = new ImageBrush(bitmap);
 
 					CreateThumb(row, column, imgBrush);
@@ -136,12 +133,12 @@ namespace Puzzle
 		private void CreateThumb(int row, int column, TileBrush imgBrush)
 		{
 			var puzzlePiece = new PuzzlePiece(column, row);
-			imgBrush.Transform = new RotateTransform(puzzlePiece.RotationAngle, -1 + (GameDetails.PuzzleSize - 1) / 2, -1 + (GameDetails.PuzzleSize - 1) / 2);
+			imgBrush.Transform = new RotateTransform(puzzlePiece.RotationAngle, -1 + (_gameDetails.PuzzleSize - 1) / 2, -1 + (_gameDetails.PuzzleSize - 1) / 2);
 			imgBrush.Stretch = Stretch.Fill;
 
-			var puzzle = new Thumb { Width = GameDetails.PuzzleSize, Height = GameDetails.PuzzleSize };
-			Canvas.SetLeft(puzzle, _random.NextDouble() * (GameImage.ActualWidth - GameDetails.PuzzleSize));
-			Canvas.SetTop(puzzle, _random.NextDouble() * (GameImage.ActualHeight - GameDetails.PuzzleSize));
+			var puzzle = new Thumb { Width = _gameDetails.PuzzleSize, Height = _gameDetails.PuzzleSize };
+			Canvas.SetLeft(puzzle, _random.NextDouble() * (GameImage.ActualWidth - _gameDetails.PuzzleSize));
+			Canvas.SetTop(puzzle, _random.NextDouble() * (GameImage.ActualHeight - _gameDetails.PuzzleSize));
 
 			Panel.SetZIndex(puzzle, int.MinValue);
 			puzzle.Background = imgBrush;
@@ -170,8 +167,8 @@ namespace Puzzle
 
 			var puzzlePiece = _puzzles[thumb];
 			puzzlePiece.Rotate();
-			var centerX = -1 + (GameDetails.PuzzleSize - 1) / 2;
-			var centerY = -1 + (GameDetails.PuzzleSize - 1) / 2;
+			var centerX = -1 + (_gameDetails.PuzzleSize - 1) / 2;
+			var centerY = -1 + (_gameDetails.PuzzleSize - 1) / 2;
 
 			thumb.Background.Transform = new RotateTransform(puzzlePiece.RotationAngle, centerX, centerY);
 		}
@@ -198,8 +195,8 @@ namespace Puzzle
 				var top = Canvas.GetTop(piece) + e.VerticalChange;
 				var left = Canvas.GetLeft(piece) + e.HorizontalChange;
 
-				if (top <= 0 || top >= GameBackground.ActualHeight - GameDetails.PuzzleSize) moveVertical = false;
-				if (left > GameBackground.ActualWidth - GameDetails.PuzzleSize || left <= 0) moveHorizontal = false;
+				if (top <= 0 || top >= GameBackground.ActualHeight - _gameDetails.PuzzleSize) moveVertical = false;
+				if (left > GameBackground.ActualWidth - _gameDetails.PuzzleSize || left <= 0) moveHorizontal = false;
 			}
 
 			foreach (var piece in connectedPieces)
@@ -234,7 +231,7 @@ namespace Puzzle
 				var puzzle = connectedPieces[i];
 				var puzzlePiece = _puzzles[puzzle];
 
-				if (puzzlePiece.Row < GameDetails.Rows - 1)
+				if (puzzlePiece.Row < _gameDetails.Rows - 1)
 					TryConnectWithPuzzle(Direction.Down, puzzle, connectedPieces, puzzlePiece);
 
 				if (puzzlePiece.Row > 0)
@@ -243,7 +240,7 @@ namespace Puzzle
 				if (puzzlePiece.Column > 0)
 					TryConnectWithPuzzle(Direction.Left, puzzle, connectedPieces, puzzlePiece);
 
-				if (puzzlePiece.Column < GameDetails.Columns - 1)
+				if (puzzlePiece.Column < _gameDetails.Columns - 1)
 					TryConnectWithPuzzle(Direction.Right, puzzle, connectedPieces, puzzlePiece);
 			}
 		}
@@ -262,8 +259,8 @@ namespace Puzzle
 			if (checkConnectedPieces == connectedPieces) return;
 			if (!AreCloseToEachOther(direction, puzzle, checkThumb)) return;
 
-			Canvas.SetLeft(puzzle, Canvas.GetLeft(checkThumb) - (int)direction.X * GameDetails.PuzzleSize);
-			Canvas.SetTop(puzzle, Canvas.GetTop(checkThumb) - (int)direction.Y * GameDetails.PuzzleSize);
+			Canvas.SetLeft(puzzle, Canvas.GetLeft(checkThumb) - (int)direction.X * _gameDetails.PuzzleSize);
+			Canvas.SetTop(puzzle, Canvas.GetTop(checkThumb) - (int)direction.Y * _gameDetails.PuzzleSize);
 
 			var deltaX = Canvas.GetLeft(puzzle) - left;
 			var deltaY = Canvas.GetTop(puzzle) - top;
@@ -280,17 +277,17 @@ namespace Puzzle
 
 		private bool AreCloseToEachOther(Point direction, UIElement puzzle, UIElement checkThumb)
 		{
-			return Canvas.GetTop(checkThumb) < Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize + Tolerance &&
-				   Canvas.GetTop(checkThumb) > Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize - Tolerance &&
-				   Canvas.GetLeft(checkThumb) < Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize + Tolerance &&
-				   Canvas.GetLeft(checkThumb) > Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize - Tolerance;
+			return Canvas.GetTop(checkThumb) < Canvas.GetTop(puzzle) + (int)direction.Y * _gameDetails.PuzzleSize + Tolerance &&
+				   Canvas.GetTop(checkThumb) > Canvas.GetTop(puzzle) + (int)direction.Y * _gameDetails.PuzzleSize - Tolerance &&
+				   Canvas.GetLeft(checkThumb) < Canvas.GetLeft(puzzle) + (int)direction.X * _gameDetails.PuzzleSize + Tolerance &&
+				   Canvas.GetLeft(checkThumb) > Canvas.GetLeft(puzzle) + (int)direction.X * _gameDetails.PuzzleSize - Tolerance;
 		}
 
 		private void EndGame()
 		{
 			_gameTimer.Stop();
 			var points = _connectedPieces.Max(pieces => pieces.Count);
-			var endWindow = new EndWindow(points, _gameDurationInSeconds, GameDetails.PuzzleCount) { Owner = this };
+			var endWindow = new EndWindow(points, _gameDurationInSeconds, _gameDetails.PuzzleCount) { Owner = this };
 			var result = endWindow.ShowDialog();
 			if (!result.HasValue || !result.Value)
 			{
@@ -298,7 +295,7 @@ namespace Puzzle
 				return;
 			}
 
-			HighScores.Add(GameDetails.Difficulty, endWindow.HighScore);
+			HighScores.Add(_gameDetails.Difficulty, endWindow.HighScore);
 			NewGame();
 		}
 
