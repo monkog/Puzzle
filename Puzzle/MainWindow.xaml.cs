@@ -22,6 +22,10 @@ namespace Puzzle
 	{
 		#region variables
 
+		private readonly Random _random = new Random();
+
+		private Dictionary<Thumb, PuzzlePiece> _puzzles;
+
 		/// <summary>
 		/// Gets the game details;
 		/// </summary>
@@ -142,12 +146,10 @@ namespace Puzzle
 			return null;
 		}
 
-		private void CreatePuzzle(BitmapImage image)
+		private void CreatePuzzle(BitmapSource image)
 		{
-			var rnd = new Random();
-			var angle = new Random();
-			var angles = new[] { 0, 90, 180, 270 };
 			_thumbTab = new Thumb[GameDetails.VerticalPuzzleCount, GameDetails.HorizontalPuzzleCount];
+			_puzzles = new Dictionary<Thumb, PuzzlePiece>();
 
 			for (var i = 0; i < GameDetails.VerticalPuzzleCount; i++)
 				for (var j = 0; j < GameDetails.HorizontalPuzzleCount; j++)
@@ -156,30 +158,32 @@ namespace Puzzle
 						, new Int32Rect(j * image.PixelWidth / GameDetails.HorizontalPuzzleCount, i * image.PixelHeight / GameDetails.VerticalPuzzleCount
 							, image.PixelWidth / GameDetails.HorizontalPuzzleCount, image.PixelHeight / GameDetails.VerticalPuzzleCount));
 					var imgBrush = new ImageBrush(cb);
-					var rotationAng = angles[angle.Next(3)];
 
-					CreateThumb(i, j, imgBrush, rotationAng, rnd);
+					CreateThumb(i, j, imgBrush);
 				}
 		}
 
-		private void CreateThumb(int i, int j, ImageBrush imgBrush, int rotationAng, Random rnd)
+		private void CreateThumb(int i, int j, TileBrush imgBrush)
 		{
-			imgBrush.Transform = new RotateTransform(rotationAng, -1 + (GameDetails.PuzzleSize - 1) / 2, -1 + (GameDetails.PuzzleSize - 1) / 2);
+			var puzzlePiece = new PuzzlePiece(i, j);
+			imgBrush.Transform = new RotateTransform(puzzlePiece.RotationAngle, -1 + (GameDetails.PuzzleSize - 1) / 2, -1 + (GameDetails.PuzzleSize - 1) / 2);
 			imgBrush.Stretch = Stretch.Fill;
 
 			var puzzle = new Thumb { Width = GameDetails.PuzzleSize, Height = GameDetails.PuzzleSize };
-			Canvas.SetLeft(puzzle, rnd.NextDouble() * (GameImage.ActualWidth - GameDetails.PuzzleSize));
-			Canvas.SetTop(puzzle, rnd.NextDouble() * (GameImage.ActualHeight - GameDetails.PuzzleSize));
+			Canvas.SetLeft(puzzle, _random.NextDouble() * (GameImage.ActualWidth - GameDetails.PuzzleSize));
+			Canvas.SetTop(puzzle, _random.NextDouble() * (GameImage.ActualHeight - GameDetails.PuzzleSize));
 
 			Panel.SetZIndex(puzzle, int.MinValue);
 			puzzle.Background = imgBrush;
 			var newList = new List<Thumb> { puzzle };
 			UnionList.Add(newList);
-			puzzle.Tag = new thumbTag { rotationAngle = rotationAng, x = j, y = i, unionNr = i * GameDetails.HorizontalPuzzleCount + j, listName = newList };
+			puzzle.Tag = new thumbTag { x = j, y = i, unionNr = i * GameDetails.HorizontalPuzzleCount + j, listName = newList };
 
 			_thumbTab[i, j] = puzzle;
 			SetThumbEventHandlers(puzzle);
 			GameImage.Children.Add(puzzle);
+
+			_puzzles.Add(puzzle, puzzlePiece);
 		}
 
 		private void SetThumbEventHandlers(Thumb puzzle)
@@ -194,16 +198,16 @@ namespace Puzzle
 		{
 			var thumb = (Thumb)sender;
 			var tt = (thumbTag)thumb.Tag;
+			var puzzlePiece = _puzzles[thumb];
 
 			if (tt.listName.Count != 1) return;
 			var imgBrush = thumb.Background;
 
-			var tran = imgBrush.Transform as RotateTransform;
-			tt.rotationAngle = (tt.rotationAngle + 90) % 360;
+			puzzlePiece.Rotate();
+			var centerX = -1 + (GameDetails.PuzzleSize - 1) / 2;
+			var centerY = -1 + (GameDetails.PuzzleSize - 1) / 2;
 
-			tran.Angle += 90;
-			tran.CenterX = -1 + (GameDetails.PuzzleSize - 1) / 2;
-			tran.CenterY = -1 + (GameDetails.PuzzleSize - 1) / 2;
+			imgBrush.Transform = new RotateTransform(puzzlePiece.RotationAngle, centerX, centerY);
 		}
 
 		private void EndGame()
@@ -267,8 +271,9 @@ namespace Puzzle
 		{
 			var puzzle = sender as Thumb;
 			var tTag = (thumbTag)puzzle.Tag;
+			var puzzlePiece = _puzzles[puzzle];
 
-			if (tTag.rotationAngle == 0)
+			if (puzzlePiece.RotationAngle == 0)
 				ConnectPuzzles(tTag);
 
 			foreach (var t in tTag.listName)
@@ -304,8 +309,9 @@ namespace Puzzle
 		{
 			var checkThumb = _thumbTab[tTag.y + (int)direction.Y, tTag.x + (int)direction.X];
 			var checkTTag = (thumbTag)checkThumb.Tag;
+			var puzzlePiece = _puzzles[puzzle];
 			if (checkTTag.listName != tTag.listName)
-				if (checkTTag.rotationAngle == 0
+				if (puzzlePiece.RotationAngle == 0
 					&& Canvas.GetTop(checkThumb) < Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize + Toleration
 					&& Canvas.GetTop(checkThumb) > Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize - Toleration
 					&& Canvas.GetLeft(checkThumb) < Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize + Toleration
