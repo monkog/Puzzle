@@ -261,25 +261,25 @@ namespace Puzzle
 				var puzzle = connectedPieces[i];
 				var puzzlePiece = _puzzles[puzzle];
 
-				var left = Canvas.GetLeft(puzzle);
-				var top = Canvas.GetTop(puzzle);
-
 				if (puzzlePiece.Row < GameDetails.Rows - 1)
-					TryConnectWithPuzzle(Direction.Down, puzzle, connectedPieces, puzzlePiece, left, top);
+					TryConnectWithPuzzle(Direction.Down, puzzle, connectedPieces, puzzlePiece);
 
 				if (puzzlePiece.Row > 0)
-					TryConnectWithPuzzle(Direction.Up, puzzle, connectedPieces, puzzlePiece, left, top);
+					TryConnectWithPuzzle(Direction.Up, puzzle, connectedPieces, puzzlePiece);
 
 				if (puzzlePiece.Column > 0)
-					TryConnectWithPuzzle(Direction.Left, puzzle, connectedPieces, puzzlePiece, left, top);
+					TryConnectWithPuzzle(Direction.Left, puzzle, connectedPieces, puzzlePiece);
 
 				if (puzzlePiece.Column < GameDetails.Columns - 1)
-					TryConnectWithPuzzle(Direction.Right, puzzle, connectedPieces, puzzlePiece, left, top);
+					TryConnectWithPuzzle(Direction.Right, puzzle, connectedPieces, puzzlePiece);
 			}
 		}
 
-		private void TryConnectWithPuzzle(Point direction, UIElement puzzle, List<Thumb> connectedPieces, PuzzlePiece puzzlePiece, double left, double top)
+		private void TryConnectWithPuzzle(Point direction, UIElement puzzle, List<Thumb> connectedPieces, PuzzlePiece puzzlePiece)
 		{
+			var left = Canvas.GetLeft(puzzle);
+			var top = Canvas.GetTop(puzzle);
+
 			var checkPuzzle = _puzzles[puzzlePiece.Row + (int)direction.Y, puzzlePiece.Column + (int)direction.X];
 			var checkThumb = checkPuzzle.Key;
 			var checkPuzzlePiece = checkPuzzle.Value;
