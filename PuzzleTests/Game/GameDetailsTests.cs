@@ -19,7 +19,6 @@ namespace PuzzleTests.Game
 			Assert.AreEqual(rows, unitUnderTest.VerticalPuzzleCount);
 			Assert.AreEqual(columns, unitUnderTest.HorizontalPuzzleCount);
 			Assert.AreEqual(rows * columns, unitUnderTest.PuzzleCount);
-			Assert.AreEqual(0, unitUnderTest.Points);
 		}
 	}
 }

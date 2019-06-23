@@ -221,7 +221,6 @@ namespace Puzzle
 		private void EndGame()
 		{
 			timer.Stop();
-			GameDetails.FinishGame();
 
 			var points = UnionList.Max(i => i.Count);
 

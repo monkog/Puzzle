@@ -1,16 +1,13 @@
-﻿namespace Puzzle.Game
+﻿using System;
+
+namespace Puzzle.Game
 {
-    public class GameDetails
-    {
+	public class GameDetails
+	{
 		/// <summary>
 		/// Gets the current game difficulty.
 		/// </summary>
 		public Difficulty Difficulty { get; }
-
-		/// <summary>
-		/// Gets the number of collected points.
-		/// </summary>
-		public int Points { get; private set; }
 
 		/// <summary>
 		/// Gets the number of puzzles in the row.
@@ -35,8 +32,6 @@
 		public GameDetails(Difficulty difficulty)
 		{
 			Difficulty = difficulty;
-			Points = 0;
-
 			InitializeGameBoard();
 		}
 
@@ -59,14 +54,11 @@
 					VerticalPuzzleCount = 8;
 					PuzzleSize = 46;
 					break;
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 
 			PuzzleCount = VerticalPuzzleCount * HorizontalPuzzleCount;
 		}
-
-		public void FinishGame()
-		{
-			Points = PuzzleCount;
-		}
-    }
+	}
 }
