@@ -61,12 +61,30 @@ namespace Puzzle.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You won! You connected all {0} puzzles. Your time:.
+        /// </summary>
+        internal static string AllPiecesConnectedMessage {
+            get {
+                return ResourceManager.GetString("AllPiecesConnectedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon icon {
             get {
                 object obj = ResourceManager.GetObject("icon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You connected only {0} puzzle(s). Your time:.
+        /// </summary>
+        internal static string NotAllPiecesConnectedMessage {
+            get {
+                return ResourceManager.GetString("NotAllPiecesConnectedMessage", resourceCulture);
             }
         }
         

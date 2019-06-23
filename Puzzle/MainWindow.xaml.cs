@@ -18,7 +18,7 @@ namespace Puzzle
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class MainWindow
 	{
 		#region variables
 
@@ -105,9 +105,31 @@ namespace Puzzle
 			{
 				timer.Stop();
 				var points = UnionList.Max(i => i.Count);
-				var ew = new EndWindow(GameDetails.Difficulty, points, seconds, GameDetails.PuzzleCount) { Owner = this };
-				ew.ShowDialog();
+				var ew = new EndWindow(points, seconds, GameDetails.PuzzleCount) { Owner = this };
+				var result = ew.ShowDialog();
+				if (result.HasValue && result.Value)
+				{
+					HighScores.Add(GameDetails.Difficulty, ew.HighScore);
+					NewGame();
+				}
+				else
+				{
+					timer.Start();
+				}
 			}
+		}
+
+		private void NewGame()
+		{
+			start = true;
+			StartButton.Content = "Start Game";
+			PauseButton.IsEnabled = false;
+			stream.Close();
+			GameImage.Background = null;
+			timer.Stop();
+			TimerLabel.Visibility = Visibility.Hidden;
+			UnionList.Clear();
+			GameImage.Children.Clear();
 		}
 
 		private BitmapImage OpenChosenFile(string file)
@@ -203,8 +225,17 @@ namespace Puzzle
 
 			var points = UnionList.Max(i => i.Count);
 
-			var ew = new EndWindow(GameDetails.Difficulty, points, seconds, GameDetails.PuzzleCount) { Owner = this };
-			ew.ShowDialog();
+			var ew = new EndWindow(points, seconds, GameDetails.PuzzleCount) { Owner = this };
+			var result = ew.ShowDialog();
+			if (result.HasValue && result.Value)
+			{
+				HighScores.Add(GameDetails.Difficulty, ew.HighScore);
+				NewGame();
+			}
+			else
+			{
+				timer.Start();
+			}
 		}
 
 		private void PuzzleDragStarted(object sender, DragStartedEventArgs e)
