@@ -21,7 +21,10 @@ namespace Puzzle
 	{
 		#region variables
 
-		public GameDetails GameDetails = new GameDetails(Difficulty.Hard);
+		/// <summary>
+		/// Gets the game details;
+		/// </summary>
+		public GameDetails GameDetails { get; private set; }
 
 		/// <summary>
 		/// Gets the collection of high scores.
@@ -46,7 +49,6 @@ namespace Puzzle
 		{
 			HighScores = new HighScores();
 			InitializeComponent();
-
 
 			setTimers();
 			SetSortDescriptions();
@@ -101,7 +103,7 @@ namespace Puzzle
 			else
 			{
 				timer.Stop();
-				var ew = new EndWindow {Owner = this, ShowInTaskbar = false};
+				var ew = new EndWindow { Owner = this, ShowInTaskbar = false };
 				ew.ShowDialog();
 			}
 		}
@@ -255,7 +257,7 @@ namespace Puzzle
 			for (var i = 0; i < tTag.listName.Count; i++)
 			{
 				var puzzle = tTag.listName[i];
-				tTag = (thumbTag) puzzle.Tag;
+				tTag = (thumbTag)puzzle.Tag;
 				var left = Canvas.GetLeft(puzzle);
 				var top = Canvas.GetTop(puzzle);
 				if (tTag.y < GameDetails.VerticalPuzzleCount - 1)

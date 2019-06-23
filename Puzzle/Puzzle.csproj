@@ -58,6 +58,7 @@
     <Compile Include="Game\GameDetails.cs" />
     <Compile Include="Game\HighScoreRecord.cs" />
     <Compile Include="Game\HighScores.cs" />
+    <Compile Include="Game\PuzzlePiece.cs" />
     <Compile Include="HelperClasses\ThumbTag.cs" />
     <Compile Include="TimeManaging.cs" />
     <Page Include="EndWindow.xaml">
