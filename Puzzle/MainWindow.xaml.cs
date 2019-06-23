@@ -175,7 +175,7 @@ namespace Puzzle
 			puzzle.Background = imgBrush;
 			var newList = new List<Thumb> { puzzle };
 			UnionList.Add(newList);
-			puzzle.Tag = new thumbTag { ib = imgBrush, rotationAngle = rotationAng, x = j, y = i, unionNr = i * GameDetails.HorizontalPuzzleCount + j, listName = newList };
+			puzzle.Tag = new thumbTag { rotationAngle = rotationAng, x = j, y = i, unionNr = i * GameDetails.HorizontalPuzzleCount + j, listName = newList };
 
 			_thumbTab[i, j] = puzzle;
 			SetThumbEventHandlers(puzzle);
@@ -196,7 +196,7 @@ namespace Puzzle
 			var tt = (thumbTag)thumb.Tag;
 
 			if (tt.listName.Count != 1) return;
-			var imgBrush = tt.ib;
+			var imgBrush = thumb.Background;
 
 			var tran = imgBrush.Transform as RotateTransform;
 			tt.rotationAngle = (tt.rotationAngle + 90) % 360;
