@@ -21,9 +21,17 @@ namespace Puzzle
 	{
 		private const int Tolerance = 20;
 
+		private readonly DropShadowEffect _shadowEffect;
+
 		private readonly Random _random = new Random();
 
+		private int _zCoordinate = int.MinValue + 1;
+
+		private bool _isGameRunning;
+
 		private PuzzleCollection _puzzles;
+
+		private List<List<Thumb>> _connectedPieces;
 
 		/// <summary>
 		/// Gets the game details;
@@ -35,11 +43,7 @@ namespace Puzzle
 		/// </summary>
 		public HighScores HighScores { get; }
 
-		public List<List<Thumb>> ConnectedPieces = new List<List<Thumb>>();
-		public bool start = true;
-		private int _zCoordinate = int.MinValue + 1;
 		public Stream stream;
-		private readonly DropShadowEffect _shadowEffect;
 
 		public MainWindow()
 		{
@@ -69,10 +73,9 @@ namespace Puzzle
 			HardListView.Items.SortDescriptions.Add(new SortDescription("time", ListSortDirection.Ascending));
 		}
 
-		#region buttons
 		private void StartButtonClick(object sender, RoutedEventArgs e)
 		{
-			if (start)
+			if (!_isGameRunning)
 			{
 				Difficulty difficulty;
 				if (HardRadio.IsChecked.Value) difficulty = Difficulty.Hard;
@@ -93,7 +96,7 @@ namespace Puzzle
 
 					StartButton.Content = "End game";
 					PauseButton.IsEnabled = true;
-					start = false;
+					_isGameRunning = true;
 				}
 			}
 			else
@@ -104,15 +107,12 @@ namespace Puzzle
 
 		private void NewGame()
 		{
-			start = true;
+			_isGameRunning = false;
 			StartButton.Content = "Start Game";
 			PauseButton.IsEnabled = false;
 			stream.Close();
-			GameImage.Background = null;
 			timer.Stop();
 			TimerLabel.Visibility = Visibility.Hidden;
-			ConnectedPieces.Clear();
-			GameImage.Children.Clear();
 		}
 
 		private BitmapImage OpenChosenFile(string file)
@@ -139,15 +139,19 @@ namespace Puzzle
 
 		private void CreatePuzzle(BitmapSource image)
 		{
+			GameImage.Background = null;
+			GameImage.Children.Clear();
+
 			_puzzles = new PuzzleCollection();
+			_connectedPieces = new List<List<Thumb>>();
 
 			for (var row = 0; row < GameDetails.Rows; row++)
 				for (var column = 0; column < GameDetails.Columns; column++)
 				{
-					var cb = new CroppedBitmap(image
+					var bitmap = new CroppedBitmap(image
 						, new Int32Rect(column * image.PixelWidth / GameDetails.Columns, row * image.PixelHeight / GameDetails.Rows
 							, image.PixelWidth / GameDetails.Columns, image.PixelHeight / GameDetails.Rows));
-					var imgBrush = new ImageBrush(cb);
+					var imgBrush = new ImageBrush(bitmap);
 
 					CreateThumb(row, column, imgBrush);
 				}
@@ -166,7 +170,7 @@ namespace Puzzle
 			Panel.SetZIndex(puzzle, int.MinValue);
 			puzzle.Background = imgBrush;
 			var newList = new List<Thumb> { puzzle };
-			ConnectedPieces.Add(newList);
+			_connectedPieces.Add(newList);
 
 			SetPuzzleEventHandlers(puzzle);
 			GameImage.Children.Add(puzzle);
@@ -185,7 +189,7 @@ namespace Puzzle
 		private void PuzzleMouseRightButtonDown(object sender, MouseButtonEventArgs e)
 		{
 			var thumb = (Thumb)sender;
-			var connectedPieces = ConnectedPieces.Single(u => u.Contains(thumb));
+			var connectedPieces = _connectedPieces.Single(u => u.Contains(thumb));
 			if (connectedPieces.Count != 1) return;
 
 			var puzzlePiece = _puzzles[thumb];
@@ -199,7 +203,7 @@ namespace Puzzle
 		private void PuzzleDragStarted(object sender, DragStartedEventArgs e)
 		{
 			var puzzle = sender as Thumb;
-			var connectedPieces = ConnectedPieces.Single(u => u.Contains(puzzle));
+			var connectedPieces = _connectedPieces.Single(u => u.Contains(puzzle));
 
 			foreach (var piece in connectedPieces)
 				Panel.SetZIndex(piece, _zCoordinate);
@@ -210,7 +214,7 @@ namespace Puzzle
 		private void PuzzleDragDelta(object sender, DragDeltaEventArgs e)
 		{
 			var puzzle = sender as Thumb;
-			var connectedPieces = ConnectedPieces.Single(u => u.Contains(puzzle));
+			var connectedPieces = _connectedPieces.Single(u => u.Contains(puzzle));
 			bool moveVertical = true, moveHorizontal = true;
 
 			foreach (var piece in connectedPieces)
@@ -233,16 +237,18 @@ namespace Puzzle
 		private void PuzzleDragCompleted(object sender, DragCompletedEventArgs e)
 		{
 			var puzzle = sender as Thumb;
-			var connectedPieces = ConnectedPieces.Single(u => u.Contains(puzzle));
+			var connectedPieces = _connectedPieces.Single(u => u.Contains(puzzle));
 			var puzzlePiece = _puzzles[puzzle];
-
-			if (puzzlePiece.RotationAngle == 0)
-				ConnectPuzzles(connectedPieces);
 
 			foreach (var piece in connectedPieces)
 				piece.Effect = null;
 
-			if (ConnectedPieces.Count == 1) EndGame();
+			if (!_isGameRunning) return;
+
+			if (puzzlePiece.RotationAngle == 0)
+				ConnectPuzzles(connectedPieces);
+
+			if (_connectedPieces.Count == 1) EndGame();
 		}
 
 		private void ConnectPuzzles(List<Thumb> connectedPieces)
@@ -256,29 +262,29 @@ namespace Puzzle
 				var top = Canvas.GetTop(puzzle);
 
 				if (puzzlePiece.Row < GameDetails.Rows - 1)
-					if (TryConnectWithPuzzle(Direction.Down, puzzle, connectedPieces, puzzlePiece, left, top)) break;
+					TryConnectWithPuzzle(Direction.Down, puzzle, connectedPieces, puzzlePiece, left, top);
 
 				if (puzzlePiece.Row > 0)
-					if (TryConnectWithPuzzle(Direction.Up, puzzle, connectedPieces, puzzlePiece, left, top)) break;
+					TryConnectWithPuzzle(Direction.Up, puzzle, connectedPieces, puzzlePiece, left, top);
 
 				if (puzzlePiece.Column > 0)
-					if (TryConnectWithPuzzle(Direction.Left, puzzle, connectedPieces, puzzlePiece, left, top)) break;
+					TryConnectWithPuzzle(Direction.Left, puzzle, connectedPieces, puzzlePiece, left, top);
 
 				if (puzzlePiece.Column < GameDetails.Columns - 1)
-					if (TryConnectWithPuzzle(Direction.Right, puzzle, connectedPieces, puzzlePiece, left, top)) break;
+					TryConnectWithPuzzle(Direction.Right, puzzle, connectedPieces, puzzlePiece, left, top);
 			}
 		}
 
-		private bool TryConnectWithPuzzle(Point direction, UIElement puzzle, List<Thumb> connectedPieces, PuzzlePiece puzzlePiece, double left, double top)
+		private void TryConnectWithPuzzle(Point direction, UIElement puzzle, List<Thumb> connectedPieces, PuzzlePiece puzzlePiece, double left, double top)
 		{
 			var checkPuzzle = _puzzles[puzzlePiece.Row + (int)direction.Y, puzzlePiece.Column + (int)direction.X];
 			var checkThumb = checkPuzzle.Key;
 			var checkPuzzlePiece = checkPuzzle.Value;
 
-			if (checkPuzzlePiece.RotationAngle != 0) return false;
-			var checkConnectedPieces = ConnectedPieces.Single(u => u.Contains(checkThumb));
-			if (checkConnectedPieces == connectedPieces) return false;
-			if (!AreCloseToEachOther(direction, puzzle, checkThumb)) return false;
+			if (checkPuzzlePiece.RotationAngle != 0) return;
+			var checkConnectedPieces = _connectedPieces.Single(u => u.Contains(checkThumb));
+			if (checkConnectedPieces == connectedPieces) return;
+			if (!AreCloseToEachOther(direction, puzzle, checkThumb)) return;
 
 			Canvas.SetLeft(puzzle, Canvas.GetLeft(checkThumb) - (int)direction.X * GameDetails.PuzzleSize);
 			Canvas.SetTop(puzzle, Canvas.GetTop(checkThumb) - (int)direction.Y * GameDetails.PuzzleSize);
@@ -293,9 +299,7 @@ namespace Puzzle
 			}
 
 			connectedPieces.AddRange(checkConnectedPieces);
-			ConnectedPieces.Remove(checkConnectedPieces);
-
-			return true;
+			_connectedPieces.Remove(checkConnectedPieces);
 		}
 
 		private bool AreCloseToEachOther(Point direction, UIElement puzzle, UIElement checkThumb)
@@ -309,7 +313,7 @@ namespace Puzzle
 		private void EndGame()
 		{
 			timer.Stop();
-			var points = ConnectedPieces.Max(pieces => pieces.Count);
+			var points = _connectedPieces.Max(pieces => pieces.Count);
 			var endWindow = new EndWindow(points, seconds, GameDetails.PuzzleCount) { Owner = this };
 			var result = endWindow.ShowDialog();
 			if (!result.HasValue || !result.Value)
@@ -333,7 +337,5 @@ namespace Puzzle
 			PauseImage.Opacity = 0.8;
 			PauseImage.Visibility = Visibility.Visible;
 		}
-
-		#endregion
 	}
 }
