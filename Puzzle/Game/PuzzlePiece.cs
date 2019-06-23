@@ -9,24 +9,24 @@ namespace Puzzle.Game
 		private static readonly Random Random = new Random();
 
 		/// <summary>
-		/// Gets the X coordinate of this piece of puzzle.
+		/// Gets the column of this piece of puzzle.
 		/// </summary>
-		public int X { get; }
+		public int Column { get; }
 
 		/// <summary>
-		/// Gets the Y coordinate of this piece of puzzle.
+		/// Gets the row of this piece of puzzle.
 		/// </summary>
-		public int Y { get; }
+		public int Row { get; }
 
 		/// <summary>
 		/// Gets the rotation angle of this piece.
 		/// </summary>
 		public int RotationAngle { get; private set; }
 
-		public PuzzlePiece(int x, int y)
+		public PuzzlePiece(int column, int row)
 		{
-			X = x;
-			Y = y;
+			Column = column;
+			Row = row;
 
 			RotationAngle = _angles[Random.Next(3)];
 		}

@@ -13,21 +13,21 @@ namespace PuzzleTests.Game
 		[TestInitialize]
 		public void Initialize()
 		{
-			const int x = 5;
-			const int y = 2;
-			_unitUnderTest = new PuzzlePiece(x, y);
+			const int column = 5;
+			const int row = 2;
+			_unitUnderTest = new PuzzlePiece(column, row);
 		}
 
 		[TestMethod]
 		public void Ctor_ValidValues_PropertiesAssigned()
 		{
-			const int x = 5;
-			const int y = 2;
+			const int column = 5;
+			const int row = 2;
 
-			var unitUnderTest = new PuzzlePiece(x, y);
+			var unitUnderTest = new PuzzlePiece(column, row);
 
-			Assert.AreEqual(x, unitUnderTest.X);
-			Assert.AreEqual(y, unitUnderTest.Y);
+			Assert.AreEqual(column, unitUnderTest.Column);
+			Assert.AreEqual(row, unitUnderTest.Row);
 			CollectionAssert.Contains(_availableAngles, unitUnderTest.RotationAngle);
 		}
 

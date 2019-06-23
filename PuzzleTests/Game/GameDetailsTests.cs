@@ -16,8 +16,8 @@ namespace PuzzleTests.Game
 
 			Assert.AreEqual(difficulty, unitUnderTest.Difficulty);
 			Assert.AreEqual(puzzleSize, unitUnderTest.PuzzleSize);
-			Assert.AreEqual(rows, unitUnderTest.VerticalPuzzleCount);
-			Assert.AreEqual(columns, unitUnderTest.HorizontalPuzzleCount);
+			Assert.AreEqual(rows, unitUnderTest.Rows);
+			Assert.AreEqual(columns, unitUnderTest.Columns);
 			Assert.AreEqual(rows * columns, unitUnderTest.PuzzleCount);
 		}
 	}

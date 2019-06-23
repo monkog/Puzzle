@@ -10,14 +10,14 @@ namespace Puzzle.Game
 		public Difficulty Difficulty { get; }
 
 		/// <summary>
-		/// Gets the number of puzzles in the row.
+		/// Gets the number of columns.
 		/// </summary>
-		public int HorizontalPuzzleCount { get; private set; }
+		public int Columns { get; private set; }
 
 		/// <summary>
-		/// Gets the number of puzzles in the column.
+		/// Gets the number of rows.
 		/// </summary>
-		public int VerticalPuzzleCount { get; private set; }
+		public int Rows { get; private set; }
 
 		/// <summary>
 		/// Gets the overall number of puzzles.
@@ -40,25 +40,25 @@ namespace Puzzle.Game
 			switch (Difficulty)
 			{
 				case Difficulty.Easy:
-					HorizontalPuzzleCount = 4;
-					VerticalPuzzleCount = 3;
+					Columns = 4;
+					Rows = 3;
 					PuzzleSize = 146;
 					break;
 				case Difficulty.Medium:
-					HorizontalPuzzleCount = 8;
-					VerticalPuzzleCount = 6;
+					Columns = 8;
+					Rows = 6;
 					PuzzleSize = 71;
 					break;
 				case Difficulty.Hard:
-					HorizontalPuzzleCount = 12;
-					VerticalPuzzleCount = 8;
+					Columns = 12;
+					Rows = 8;
 					PuzzleSize = 46;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 
-			PuzzleCount = VerticalPuzzleCount * HorizontalPuzzleCount;
+			PuzzleCount = Rows * Columns;
 		}
 	}
 }
