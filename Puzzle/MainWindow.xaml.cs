@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -103,7 +104,8 @@ namespace Puzzle
 			else
 			{
 				timer.Stop();
-				var ew = new EndWindow { Owner = this, ShowInTaskbar = false };
+				var points = UnionList.Max(i => i.Count);
+				var ew = new EndWindow(GameDetails.Difficulty, points, seconds, GameDetails.PuzzleCount) { Owner = this };
 				ew.ShowDialog();
 			}
 		}
@@ -198,7 +200,10 @@ namespace Puzzle
 		{
 			timer.Stop();
 			GameDetails.FinishGame();
-			var ew = new EndWindow { Owner = this };
+
+			var points = UnionList.Max(i => i.Count);
+
+			var ew = new EndWindow(GameDetails.Difficulty, points, seconds, GameDetails.PuzzleCount) { Owner = this };
 			ew.ShowDialog();
 		}
 

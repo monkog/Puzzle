@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using Puzzle.Game;
-using Puzzle.HelperClasses;
 
 namespace Puzzle
 {
@@ -11,50 +8,55 @@ namespace Puzzle
 	/// </summary>
 	public partial class EndWindow : Window
 	{
-		public int max = 1;
+		private readonly Difficulty _gameDifficulty;
 
-		public EndWindow()
+		private readonly int _seconds;
+
+		private readonly int _points;
+
+		private readonly int _maxPoints;
+
+		public EndWindow(Difficulty gameDifficulty, int points, int seconds, int maxPoints)
 		{
+			_gameDifficulty = gameDifficulty;
+			_points = points;
+			_seconds = seconds;
+			_maxPoints = maxPoints;
 			InitializeComponent();
-			WindowStyle = WindowStyle.ToolWindow;
-			ResizeMode = ResizeMode.NoResize;
 		}
 
 		private void Window_Loaded_1(object sender, RoutedEventArgs e)
 		{
-			var mw = Owner as MainWindow;
-			var minutes = (mw.seconds / 3600).ToString("00");
-			var seconds = (mw.seconds / 60).ToString("00");
-			var milliseconds = (mw.seconds % 60).ToString("00");
+			var minutes = (_seconds / 3600).ToString("00");
+			var seconds = (_seconds / 60).ToString("00");
+			var milliseconds = (_seconds % 60).ToString("00");
 
 			TimerLabel.Content = $"{minutes}:{seconds}:{milliseconds}";
 
-			max = mw.UnionList.Max(i => i.Count);
-
-			if (mw.GameDetails.Points == mw.GameDetails.PuzzleCount)
-				WonLabel.Content = $"You won! You connected all {mw.GameDetails.Points} puzzles. Your time:";
+			if (_points == _maxPoints)
+				WonLabel.Content = $"You won! You connected all {_points} puzzles. Your time:";
 			else
-				WonLabel.Content = $"You connected only {max} puzzle(s). Your time:";
+				WonLabel.Content = $"You connected only {_points} puzzle(s). Your time:";
 		}
 
 		private void OkButtonClick(object sender, RoutedEventArgs e)
 		{
 			var mw = Owner as MainWindow;
+
 			var name = NameTextBox.Text;
+			if (name == string.Empty) name = "John Doe";
+			var highScore = new HighScoreRecord(name, _points, _seconds);
 
-			if (name == string.Empty)
-				name = "John Doe";
-
-			switch (mw.GameDetails.Difficulty)
+			switch (_gameDifficulty)
 			{
 				case Difficulty.Hard:
-					mw.HighScores.HardHighScores.Add(new HighScoreRecord(name, max, mw.seconds));
+					mw.HighScores.HardHighScores.Add(highScore);
 					break;
 				case Difficulty.Medium:
-					mw.HighScores.MediumHighScores.Add(new HighScoreRecord(name, max, mw.seconds));
+					mw.HighScores.MediumHighScores.Add(highScore);
 					break;
 				case Difficulty.Easy:
-					mw.HighScores.EasyHighScores.Add(new HighScoreRecord(name, max, mw.seconds));
+					mw.HighScores.EasyHighScores.Add(highScore);
 					break;
 			}
 
@@ -66,7 +68,7 @@ namespace Puzzle
 		{
 			var mw = Owner as MainWindow;
 
-			if (mw.GameDetails.Points == mw.GameDetails.PuzzleCount)
+			if (_points == _maxPoints)
 				NewGame(mw);
 			else
 				mw.timer.Start();
