@@ -103,19 +103,7 @@ namespace Puzzle
 			}
 			else
 			{
-				timer.Stop();
-				var points = UnionList.Max(i => i.Count);
-				var ew = new EndWindow(points, seconds, GameDetails.PuzzleCount) { Owner = this };
-				var result = ew.ShowDialog();
-				if (result.HasValue && result.Value)
-				{
-					HighScores.Add(GameDetails.Difficulty, ew.HighScore);
-					NewGame();
-				}
-				else
-				{
-					timer.Start();
-				}
+				EndGame();
 			}
 		}
 
