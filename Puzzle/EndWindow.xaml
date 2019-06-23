@@ -33,12 +33,12 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
-		<Label Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Name="wonLabel" Width="302"/>
-		<Label Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Name="timerLabel" Width="72"/>
+		<Label Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Name="WonLabel" Width="302"/>
+		<Label Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Name="TimerLabel" Width="72"/>
 		<Label Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Content="Enter your name:" Width="96"/>
-		<TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" Name="nameTextBox" Height="23" TextWrapping="Wrap" Width="152"/>
+		<TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" Name="NameTextBox" Height="23" TextWrapping="Wrap" Width="152"/>
 
-		<Button Grid.Column="1" Grid.Row="4" Name="okButton" Content="OK" Click="okButton_Click"/>
-		<Button Grid.Column="2" Grid.Row="4" Name="cancelButton" Content="Cancel" Click="cancelButton_Click"/>
+		<Button Grid.Column="1" Grid.Row="4" Name="OkButton" Content="OK" Click="OkButtonClick"/>
+		<Button Grid.Column="2" Grid.Row="4" Name="CancelButton" Content="Cancel" Click="CancelButtonClick"/>
 	</Grid>
 </Window>

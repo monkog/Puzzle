@@ -1,104 +1,89 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using Puzzle.HelperClasses;
 
 namespace Puzzle
 {
-    /// <summary>
-    /// Interaction logic for EndWindow.xaml
-    /// </summary>
-    public partial class EndWindow : Window
-    {
-        public int max = 1;
+	/// <summary>
+	/// Interaction logic for EndWindow.xaml
+	/// </summary>
+	public partial class EndWindow : Window
+	{
+		public int max = 1;
 
-        public EndWindow()
-        {
-            InitializeComponent();
-            WindowStyle = WindowStyle.ToolWindow;
-            ResizeMode = ResizeMode.NoResize;
-        }
+		public EndWindow()
+		{
+			InitializeComponent();
+			WindowStyle = WindowStyle.ToolWindow;
+			ResizeMode = ResizeMode.NoResize;
+		}
 
-        private void Window_Loaded_1(object sender, RoutedEventArgs e)
-        {
-            MainWindow mw = this.Owner as MainWindow;
-            timerLabel.Content = String.Format("{0}:{1}:{2}", (mw.seconds / 3600).ToString("00"), (mw.seconds / 60).ToString("00"), (mw.seconds % 60).ToString("00"));
+		private void Window_Loaded_1(object sender, RoutedEventArgs e)
+		{
+			var mw = Owner as MainWindow;
+			var minutes = (mw.seconds / 3600).ToString("00");
+			var seconds = (mw.seconds / 60).ToString("00");
+			var milliseconds = (mw.seconds % 60).ToString("00");
 
-            for (int i = 0; i < mw.unionList.Count; i++)
-                if (mw.unionList[i].Count > max)
-                    max = mw.unionList[i].Count;
+			TimerLabel.Content = $"{minutes}:{seconds}:{milliseconds}";
 
-            if (mw.gd.currentGameCounter == mw.maxCount)
-                wonLabel.Content = String.Format("You won! You connected all {0} puzzles. Your time:", mw.gd.currentGameCounter);
-            else
-                wonLabel.Content = String.Format("You connected only {0} puzzle(s). Your time:", max);
-        }
+			max = mw.unionList.Max(i => i.Count);
 
+			if (mw.gd.currentGameCounter == mw.maxCount)
+				WonLabel.Content = $"You won! You connected all {mw.gd.currentGameCounter} puzzles. Your time:";
+			else
+				WonLabel.Content = $"You connected only {max} puzzle(s). Your time:";
+		}
 
-        public int timeCompare(listItems x, listItems y)
-        {
-            if (x.time > y.time) return 1;
-            if (x.time == y.time) return 0;
-            return -1;
-        }
+		private void OkButtonClick(object sender, RoutedEventArgs e)
+		{
+			var mw = Owner as MainWindow;
+			var name = NameTextBox.Text;
 
-        public int counterCompare(listItems x, listItems y)
-        {
-            if (x.counter > y.counter) return 1;
-            if (x.counter == y.counter) return 0;
-            return -1;
-        }
+			if (name == string.Empty)
+				name = "John Doe";
 
-        private void okButton_Click(object sender, RoutedEventArgs e)
-        {
-            MainWindow mw = this.Owner as MainWindow;
-            string textboxName = nameTextBox.Text;
+			switch (mw.gd.gameLevel)
+			{
+				case 'h':
+					mw.hardList.Add(new listItems { name = name, counter = max, time = mw.seconds });
+					break;
+				case 'm':
+					mw.mediumList.Add(new listItems { name = name, counter = max, time = mw.seconds });
+					break;
+				case 'e':
+					mw.easyList.Add(new listItems { name = name, counter = max, time = mw.seconds });
+					break;
+			}
 
-            if (textboxName == "")
-                textboxName = "John Doe";
+			NewGame(mw);
+			Close();
+		}
 
-            List<listItems> liList = new List<listItems>();
+		private void CancelButtonClick(object sender, RoutedEventArgs e)
+		{
+			var mw = Owner as MainWindow;
 
-            switch (mw.gd.gameLevel)
-            {
-                case 'h':
-                    mw.hardList.Add(new listItems { name = textboxName, counter = max, time = mw.seconds });
-                    break;
-                case 'm':
-                    mw.mediumList.Add(new listItems { name = textboxName, counter = max, time = mw.seconds });
-                    break;
-                case 'e':
-                    mw.easyList.Add(new listItems { name = textboxName, counter = max, time = mw.seconds });
-                    break;
-            }
+			if (mw.gd.currentGameCounter == mw.maxCount)
+				NewGame(mw);
+			else
+				mw.timer.Start();
 
-            setNewGame(mw);
-            this.Close();
-        }
+			Close();
+		}
 
-        private void cancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            MainWindow mw = this.Owner as MainWindow;
-
-            if (mw.gd.currentGameCounter == mw.maxCount)
-                setNewGame(mw);
-            else
-                mw.timer.Start();
-
-            this.Close();
-        }
-
-        private void setNewGame(MainWindow mw)
-        {
-            mw.start = true;
-            mw.startButton.Content = "Start Game";
-            mw.pauseButton.IsEnabled = false;
-            mw.stream.Close();
-            mw.image.Background = null;
-            mw.timer.Stop();
-            mw.timerLabel.Visibility = Visibility.Hidden;
-            mw.unionList.Clear();
-            mw.image.Children.Clear();
-        }
-    }
+		private static void NewGame(MainWindow mw)
+		{
+			mw.start = true;
+			mw.startButton.Content = "Start Game";
+			mw.pauseButton.IsEnabled = false;
+			mw.stream.Close();
+			mw.image.Background = null;
+			mw.timer.Stop();
+			mw.timerLabel.Visibility = Visibility.Hidden;
+			mw.unionList.Clear();
+			mw.image.Children.Clear();
+		}
+	}
 }
