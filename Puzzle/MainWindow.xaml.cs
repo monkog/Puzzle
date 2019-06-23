@@ -22,12 +22,15 @@ namespace Puzzle
     {
         #region variables
 
-        public List<List<Thumb>> unionList = new List<List<Thumb>>();
         public GameDetails gd = new GameDetails(Difficulty.Hard);
+
+		/// <summary>
+		/// Gets the collection of high scores.
+		/// </summary>
+		public HighScores HighScores { get; }
+
+        public List<List<Thumb>> unionList = new List<List<Thumb>>();
         public bool start = true;
-        public ObservableCollection<listItems> _easyList = new ObservableCollection<listItems>(),
-            _mediumList = new ObservableCollection<listItems>(),
-            _hardList = new ObservableCollection<listItems>();
         int zCoordinate = int.MinValue + 1;
         public Stream stream;
         DropShadowBitmapEffect shadowEffect;
@@ -38,20 +41,13 @@ namespace Puzzle
         private Point UP = new Point() { X = 0, Y = -1 };
         private Point DOWN = new Point() { X = 0, Y = 1 };
 
-        public ObservableCollection<listItems> hardList
-        { get { return _hardList; } }
-
-        public ObservableCollection<listItems> mediumList
-        { get { return _mediumList; } }
-
-        public ObservableCollection<listItems> easyList
-        { get { return _easyList; } }
-
         #endregion
 
         public MainWindow()
         {
+			HighScores = new HighScores();
             InitializeComponent();
+
 
             setTimers();
             setSortDescriptions();

@@ -87,32 +87,32 @@
 						</LinearGradientBrush>
 					</Grid.Background>
 					<Label Grid.Column="0" Grid.Row="0" Content="Easy"/>
-					<ListView Name="easyListView" Grid.Column="0" Grid.Row="1" ItemsSource="{Binding easyList}">
+					<ListView Name="easyListView" Grid.Column="0" Grid.Row="1" ItemsSource="{Binding HighScores.EasyHighScores}">
 						<ListView.View>
 							<GridView>
-								<GridViewColumn Header="Name"  DisplayMemberBinding="{Binding name}"/>
-								<GridViewColumn Header="Count" DisplayMemberBinding="{Binding counter}"/>
-								<GridViewColumn Header="Time (s)" DisplayMemberBinding="{Binding time}"/>
+								<GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}"/>
+								<GridViewColumn Header="Count" DisplayMemberBinding="{Binding Points}"/>
+								<GridViewColumn Header="Time (s)" DisplayMemberBinding="{Binding Seconds}"/>
 							</GridView>
 						</ListView.View>
 					</ListView>
 					<Label Grid.Column="1" Grid.Row="0" Content="Medium"/>
-					<ListView Name="mediumListView" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding mediumList}">
+					<ListView Name="mediumListView" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding HighScores.MediumHighScores}">
 						<ListView.View>
 							<GridView>
-								<GridViewColumn Header="Name" DisplayMemberBinding="{Binding name}"/>
-								<GridViewColumn Header="Count" DisplayMemberBinding="{Binding counter}"/>
-								<GridViewColumn Header="Time (s)" DisplayMemberBinding="{Binding time}"/>
+								<GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
+								<GridViewColumn Header="Count" DisplayMemberBinding="{Binding Points}"/>
+								<GridViewColumn Header="Time (s)" DisplayMemberBinding="{Binding Seconds}"/>
 							</GridView>
 						</ListView.View>
 					</ListView>
 					<Label Grid.Column="2" Grid.Row="0" Content="Hard"/>
-					<ListView Name="hardListView" Grid.Column="2" Grid.Row="1" ItemsSource="{Binding hardList}">
+					<ListView Name="hardListView" Grid.Column="2" Grid.Row="1" ItemsSource="{Binding HighScores.HardHighScores}">
 						<ListView.View>
 							<GridView>
-								<GridViewColumn Header="Name" DisplayMemberBinding="{Binding name}"/>
-								<GridViewColumn Header="Count" DisplayMemberBinding="{Binding counter}"/>
-								<GridViewColumn Header="Time (s)" DisplayMemberBinding="{Binding time}"/>
+								<GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
+								<GridViewColumn Header="Count" DisplayMemberBinding="{Binding Points}"/>
+								<GridViewColumn Header="Time (s)" DisplayMemberBinding="{Binding Seconds}"/>
 							</GridView>
 						</ListView.View>
 					</ListView>

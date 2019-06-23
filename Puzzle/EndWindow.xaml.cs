@@ -48,13 +48,13 @@ namespace Puzzle
 			switch (mw.gd.Difficulty)
 			{
 				case Difficulty.Hard:
-					mw.hardList.Add(new listItems { name = name, counter = max, time = mw.seconds });
+					mw.HighScores.HardHighScores.Add(new HighScoreRecord(name, max, mw.seconds));
 					break;
 				case Difficulty.Medium:
-					mw.mediumList.Add(new listItems { name = name, counter = max, time = mw.seconds });
+					mw.HighScores.MediumHighScores.Add(new HighScoreRecord(name, max, mw.seconds));
 					break;
 				case Difficulty.Easy:
-					mw.easyList.Add(new listItems { name = name, counter = max, time = mw.seconds });
+					mw.HighScores.EasyHighScores.Add(new HighScoreRecord(name, max, mw.seconds));
 					break;
 			}
 
