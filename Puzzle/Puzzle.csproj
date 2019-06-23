@@ -61,7 +61,6 @@
     <Compile Include="Game\HighScores.cs" />
     <Compile Include="Game\PuzzleCollection.cs" />
     <Compile Include="Game\PuzzlePiece.cs" />
-    <Compile Include="TimeManaging.cs" />
     <Page Include="EndWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Microsoft.Win32;
 using Puzzle.Game;
 
@@ -25,6 +26,10 @@ namespace Puzzle
 		private readonly DropShadowEffect _shadowEffect;
 
 		private readonly Random _random = new Random();
+
+		private int _gameDurationInSeconds;
+
+		private DispatcherTimer _gameTimer, _pauseTimer;
 
 		private int _zCoordinate = int.MinValue + 1;
 
@@ -51,7 +56,7 @@ namespace Puzzle
 			HighScores = new HighScores();
 			InitializeComponent();
 
-			setTimers();
+			InitializeTimers();
 			SetSortDescriptions();
 
 			_shadowEffect = new DropShadowEffect
@@ -96,7 +101,7 @@ namespace Puzzle
 			GameDetails = new GameDetails(difficulty);
 
 			CreatePuzzle(image);
-			new_timer();
+			ResetTimer();
 
 			StartButton.Content = "End game";
 			PauseButton.IsEnabled = true;
@@ -109,7 +114,7 @@ namespace Puzzle
 			StartButton.Content = "Start Game";
 			PauseButton.IsEnabled = false;
 			stream.Close();
-			timer.Stop();
+			_gameTimer.Stop();
 			TimerLabel.Visibility = Visibility.Hidden;
 		}
 
@@ -310,13 +315,13 @@ namespace Puzzle
 
 		private void EndGame()
 		{
-			timer.Stop();
+			_gameTimer.Stop();
 			var points = _connectedPieces.Max(pieces => pieces.Count);
-			var endWindow = new EndWindow(points, seconds, GameDetails.PuzzleCount) { Owner = this };
+			var endWindow = new EndWindow(points, _gameDurationInSeconds, GameDetails.PuzzleCount) { Owner = this };
 			var result = endWindow.ShowDialog();
 			if (!result.HasValue || !result.Value)
 			{
-				timer.Start();
+				_gameTimer.Start();
 				return;
 			}
 
@@ -324,14 +329,50 @@ namespace Puzzle
 			NewGame();
 		}
 
+		private void InitializeTimers()
+		{
+			_gameTimer = new DispatcherTimer { Interval = new TimeSpan(0, 0, 1) };
+			_gameTimer.Tick += GameTimerTick;
+
+			_pauseTimer = new DispatcherTimer { Interval = new TimeSpan(0, 0, 0, 0, 50) };
+			_pauseTimer.Tick += PauseTimerTick;
+		}
+
+		private void ResetTimer()
+		{
+			TimerLabel.Visibility = Visibility.Visible;
+			_gameTimer.Stop();
+			_gameDurationInSeconds = 0;
+			TimerLabel.Content = $"Time {(_gameDurationInSeconds / 3600):00}:{(_gameDurationInSeconds / 60):00}:{(_gameDurationInSeconds % 60):00}";
+			_gameTimer.Start();
+		}
+
+		private void PauseImageMouseDown(object sender, MouseButtonEventArgs e)
+		{
+			_pauseTimer.Start();
+		}
+
+		private void GameTimerTick(object sender, EventArgs e)
+		{
+			_gameDurationInSeconds++;
+			TimerLabel.Content = $"Time {(_gameDurationInSeconds / 3600):00}:{(_gameDurationInSeconds / 60):00}:{(_gameDurationInSeconds % 60):00}";
+		}
+
+		private void PauseTimerTick(object sender, EventArgs e)
+		{
+			PauseImage.Opacity -= 0.05;
+			PauseImage.UpdateLayout();
+
+			if (PauseImage.Opacity > 0.1) return;
+
+			_pauseTimer.Stop();
+			_gameTimer.Start();
+			PauseImage.Visibility = Visibility.Hidden;
+		}
+
 		private void PauseButtonClick(object sender, RoutedEventArgs e)
 		{
-			timer.Stop();
-			StartButton.IsEnabled = false;
-			PauseButton.IsEnabled = false;
-			EasyRadio.IsEnabled = false;
-			MediumRadio.IsEnabled = false;
-			HardRadio.IsEnabled = false;
+			_gameTimer.Stop();
 			PauseImage.Opacity = 0.8;
 			PauseImage.Visibility = Visibility.Visible;
 		}
