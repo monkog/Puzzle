@@ -59,7 +59,6 @@
     <Compile Include="Game\HighScoreRecord.cs" />
     <Compile Include="Game\HighScores.cs" />
     <Compile Include="Game\PuzzlePiece.cs" />
-    <Compile Include="HelperClasses\ThumbTag.cs" />
     <Compile Include="TimeManaging.cs" />
     <Page Include="EndWindow.xaml">
       <SubType>Designer</SubType>
@@ -113,6 +112,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="HelperClasses\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

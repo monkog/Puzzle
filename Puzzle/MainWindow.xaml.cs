@@ -11,7 +11,6 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using Puzzle.Game;
-using Puzzle.HelperClasses;
 
 namespace Puzzle
 {
@@ -36,7 +35,7 @@ namespace Puzzle
 		/// </summary>
 		public HighScores HighScores { get; }
 
-		public List<List<Thumb>> UnionList = new List<List<Thumb>>();
+		public List<List<Thumb>> ConnectedPieces = new List<List<Thumb>>();
 		public bool start = true;
 		private int _zCoordinate = int.MinValue + 1;
 		public Stream stream;
@@ -120,7 +119,7 @@ namespace Puzzle
 			GameImage.Background = null;
 			timer.Stop();
 			TimerLabel.Visibility = Visibility.Hidden;
-			UnionList.Clear();
+			ConnectedPieces.Clear();
 			GameImage.Children.Clear();
 		}
 
@@ -176,8 +175,7 @@ namespace Puzzle
 			Panel.SetZIndex(puzzle, int.MinValue);
 			puzzle.Background = imgBrush;
 			var newList = new List<Thumb> { puzzle };
-			UnionList.Add(newList);
-			puzzle.Tag = new thumbTag { listName = newList };
+			ConnectedPieces.Add(newList);
 
 			_thumbTab[row, column] = puzzle;
 			SetThumbEventHandlers(puzzle);
@@ -197,10 +195,10 @@ namespace Puzzle
 		private void PuzzleMouseRightButtonDown(object sender, MouseButtonEventArgs e)
 		{
 			var thumb = (Thumb)sender;
-			var tt = (thumbTag)thumb.Tag;
 			var puzzlePiece = _puzzles[thumb];
+			var connectedPieces = ConnectedPieces.Single(u => u.Contains(thumb));
 
-			if (tt.listName.Count != 1) return;
+			if (connectedPieces.Count != 1) return;
 			var imgBrush = thumb.Background;
 
 			puzzlePiece.Rotate();
@@ -214,7 +212,7 @@ namespace Puzzle
 		{
 			timer.Stop();
 
-			var points = UnionList.Max(i => i.Count);
+			var points = ConnectedPieces.Max(i => i.Count);
 
 			var ew = new EndWindow(points, seconds, GameDetails.PuzzleCount) { Owner = this };
 			var result = ew.ShowDialog();
@@ -232,115 +230,106 @@ namespace Puzzle
 		private void PuzzleDragStarted(object sender, DragStartedEventArgs e)
 		{
 			var puzzle = sender as Thumb;
-			var tt = (thumbTag)puzzle.Tag;
+			var connectedPieces = ConnectedPieces.Single(u => u.Contains(puzzle));
 
-			foreach (var t in tt.listName)
-			{
-				Panel.SetZIndex(t, _zCoordinate);
-			}
+			foreach (var piece in connectedPieces)
+				Panel.SetZIndex(piece, _zCoordinate);
+
 			_zCoordinate++;
 		}
 
 		private void PuzzleDragDelta(object sender, DragDeltaEventArgs e)
 		{
 			var puzzle = sender as Thumb;
-			var tt = (thumbTag)puzzle.Tag;
+			var connectedPieces = ConnectedPieces.Single(u => u.Contains(puzzle));
 			bool moveVertical = true, moveHorizontal = true;
 
-			for (var i = 0; i < tt.listName.Count; i++)
+			for (var i = 0; i < connectedPieces.Count; i++)
 			{
-				if (Canvas.GetTop(tt.listName[i]) + e.VerticalChange <= 0
-					|| Canvas.GetTop(tt.listName[i]) + e.VerticalChange >= GameBackground.ActualHeight - GameDetails.PuzzleSize)
+				if (Canvas.GetTop(connectedPieces[i]) + e.VerticalChange <= 0
+					|| Canvas.GetTop(connectedPieces[i]) + e.VerticalChange >= GameBackground.ActualHeight - GameDetails.PuzzleSize)
 					moveVertical = false;
-				if (Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange > GameBackground.ActualWidth - GameDetails.PuzzleSize
-				|| Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange <= 0)
+				if (Canvas.GetLeft(connectedPieces[i]) + e.HorizontalChange > GameBackground.ActualWidth - GameDetails.PuzzleSize
+				|| Canvas.GetLeft(connectedPieces[i]) + e.HorizontalChange <= 0)
 					moveHorizontal = false;
 			}
 
-			for (var i = 0; i < tt.listName.Count; i++)
+			for (var i = 0; i < connectedPieces.Count; i++)
 			{
 				if (moveVertical)
-					Canvas.SetTop(tt.listName[i], Canvas.GetTop(tt.listName[i]) + e.VerticalChange);
+					Canvas.SetTop(connectedPieces[i], Canvas.GetTop(connectedPieces[i]) + e.VerticalChange);
 				if (moveHorizontal)
-					Canvas.SetLeft(tt.listName[i], Canvas.GetLeft(tt.listName[i]) + e.HorizontalChange);
-				tt.listName[i].BitmapEffect = _shadowEffect;
+					Canvas.SetLeft(connectedPieces[i], Canvas.GetLeft(connectedPieces[i]) + e.HorizontalChange);
+				connectedPieces[i].BitmapEffect = _shadowEffect;
 			}
 		}
 
 		private void PuzzleDragCompleted(object sender, DragCompletedEventArgs e)
 		{
 			var puzzle = sender as Thumb;
-			var tTag = (thumbTag)puzzle.Tag;
+			var connectedPieces = ConnectedPieces.Single(u => u.Contains(puzzle));
 			var puzzlePiece = _puzzles[puzzle];
 
 			if (puzzlePiece.RotationAngle == 0)
-				ConnectPuzzles(tTag, puzzlePiece);
+				ConnectPuzzles(connectedPieces, puzzlePiece);
 
-			foreach (var t in tTag.listName)
+			foreach (var t in connectedPieces)
 				t.BitmapEffect = null;
 		}
 
-		private void ConnectPuzzles(thumbTag tTag, PuzzlePiece puzzlePiece)
+		private void ConnectPuzzles(List<Thumb> connectedPieces, PuzzlePiece puzzlePiece)
 		{
-			for (var i = 0; i < tTag.listName.Count; i++)
+			for (var i = 0; i < connectedPieces.Count; i++)
 			{
-				var puzzle = tTag.listName[i];
-				tTag = (thumbTag)puzzle.Tag;
+				var puzzle = connectedPieces[i];
 				var left = Canvas.GetLeft(puzzle);
 				var top = Canvas.GetTop(puzzle);
 				if (puzzlePiece.Row < GameDetails.Rows - 1)
-					CheckPuzzle(DOWN, puzzle, tTag, puzzlePiece, left, top);
+					CheckPuzzle(DOWN, puzzle, connectedPieces, puzzlePiece, left, top);
 
 				if (puzzlePiece.Row > 0)
-					CheckPuzzle(UP, puzzle, tTag, puzzlePiece, left, top);
+					CheckPuzzle(UP, puzzle, connectedPieces, puzzlePiece, left, top);
 
 				if (puzzlePiece.Column > 0)
-					CheckPuzzle(LEFT, puzzle, tTag, puzzlePiece, left, top);
+					CheckPuzzle(LEFT, puzzle, connectedPieces, puzzlePiece, left, top);
 
 				if (puzzlePiece.Column < GameDetails.Columns - 1)
-					CheckPuzzle(RIGHT, puzzle, tTag, puzzlePiece, left, top);
+					CheckPuzzle(RIGHT, puzzle, connectedPieces, puzzlePiece, left, top);
 
-				if (UnionList.Count == 1)
-					EndGame();
+				if (ConnectedPieces.Count != 1) continue;
+				EndGame();
+				return;
 			}
 		}
 
-		private void CheckPuzzle(Point direction, Thumb puzzle, thumbTag tTag, PuzzlePiece puzzlePiece, double left, double top)
+		private void CheckPuzzle(Point direction, UIElement puzzle, List<Thumb> connectedPieces, PuzzlePiece puzzlePiece, double left, double top)
 		{
 			var checkThumb = _thumbTab[puzzlePiece.Row + (int)direction.Y, puzzlePiece.Column + (int)direction.X];
 			var checkPuzzlePiece = _puzzles[checkThumb];
+
 			if (checkPuzzlePiece.RotationAngle != 0) return;
-			var checkTTag = (thumbTag)checkThumb.Tag;
-			if (checkTTag.listName != tTag.listName)
-				if (puzzlePiece.RotationAngle == 0
-					&& Canvas.GetTop(checkThumb) < Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize + Toleration
-					&& Canvas.GetTop(checkThumb) > Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize - Toleration
-					&& Canvas.GetLeft(checkThumb) < Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize + Toleration
-					&& Canvas.GetLeft(checkThumb) > Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize - Toleration)
+			var checkConnectedPieces = ConnectedPieces.Single(u => u.Contains(checkThumb));
+			if (checkConnectedPieces == connectedPieces) return;
+			if (Canvas.GetTop(checkThumb) < Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize + Toleration &&
+				Canvas.GetTop(checkThumb) > Canvas.GetTop(puzzle) + (int)direction.Y * GameDetails.PuzzleSize - Toleration &&
+				Canvas.GetLeft(checkThumb) < Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize + Toleration &&
+				Canvas.GetLeft(checkThumb) > Canvas.GetLeft(puzzle) + (int)direction.X * GameDetails.PuzzleSize - Toleration)
+			{
+				connectedPieces.AddRange(checkConnectedPieces);
+				ConnectedPieces.Remove(checkConnectedPieces);
+
+				Canvas.SetLeft(puzzle, Canvas.GetLeft(checkThumb) - (int)direction.X * GameDetails.PuzzleSize);
+				Canvas.SetTop(puzzle, Canvas.GetTop(checkThumb) - (int)direction.Y * GameDetails.PuzzleSize);
+
+				var deltaX = Canvas.GetLeft(puzzle) - left;
+				var deltaY = Canvas.GetTop(puzzle) - top;
+
+				for (var j = 0; j < connectedPieces.Count && connectedPieces[j] != puzzle && connectedPieces[j] != checkThumb; j++)
 				{
-					var l = checkTTag.listName;
-					while (l.Count != 0)
-					{
-						tTag.listName.Add(l[l.Count - 1]);
-						var ltt = (thumbTag)l[l.Count - 1].Tag;
-						ltt.listName = tTag.listName;
-						l.Remove(l[l.Count - 1]);
-					}
-
-					UnionList.Remove(l);
-
-					Canvas.SetLeft(puzzle, Canvas.GetLeft(checkThumb) - (int)direction.X * GameDetails.PuzzleSize);
-					Canvas.SetTop(puzzle, Canvas.GetTop(checkThumb) - (int)direction.Y * GameDetails.PuzzleSize);
-
-					var deltaX = Canvas.GetLeft(puzzle) - left;
-					var deltaY = Canvas.GetTop(puzzle) - top;
-
-					for (var j = 0; j < tTag.listName.Count && tTag.listName[j] != puzzle && tTag.listName[j] != checkThumb; j++)
-					{
-						Canvas.SetLeft(tTag.listName[j], Canvas.GetLeft(tTag.listName[j]) - deltaX);
-						Canvas.SetTop(tTag.listName[j], Canvas.GetTop(tTag.listName[j]) - deltaY);
-					}
+					Canvas.SetLeft(connectedPieces[j], Canvas.GetLeft(connectedPieces[j]) - deltaX);
+					Canvas.SetTop(connectedPieces[j], Canvas.GetTop(connectedPieces[j]) - deltaY);
 				}
+			}
 		}
 
 		private void PauseButtonClick(object sender, RoutedEventArgs e)
