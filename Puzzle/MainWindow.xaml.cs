@@ -49,8 +49,6 @@ namespace Puzzle
 		/// </summary>
 		public HighScores HighScores { get; }
 
-		public Stream stream;
-
 		public MainWindow()
 		{
 			HighScores = new HighScores();
@@ -90,9 +88,7 @@ namespace Puzzle
 			var openFileDialog = new OpenFileDialog { Filter = Properties.Resources.ImageFilesExtensions };
 			if (openFileDialog.ShowDialog() != true) return;
 
-			var image = OpenChosenFile(openFileDialog.FileName);
-			if (image == null)
-				return;
+			var image = new BitmapImage(new Uri(openFileDialog.FileName));
 
 			Difficulty difficulty;
 			if (HardRadio.IsChecked == true) difficulty = Difficulty.Hard;
@@ -113,31 +109,8 @@ namespace Puzzle
 			_isGameRunning = false;
 			StartButton.Content = "Start Game";
 			PauseButton.IsEnabled = false;
-			stream.Close();
 			_gameTimer.Stop();
 			TimerLabel.Visibility = Visibility.Hidden;
-		}
-
-		private BitmapImage OpenChosenFile(string file)
-		{
-			try
-			{
-				var image = new BitmapImage();
-				stream = File.Open(file, FileMode.Open);
-
-				image.BeginInit();
-				image.StreamSource = stream;
-				image.EndInit();
-				image.Freeze();
-				return image;
-			}
-			catch (Exception exc)
-			{
-				stream.Close();
-				GameImage.Children.Clear();
-				MessageBox.Show("An problem occured while opening the file " + exc.Message);
-			}
-			return null;
 		}
 
 		private void CreatePuzzle(BitmapSource image)
