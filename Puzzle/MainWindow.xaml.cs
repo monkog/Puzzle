@@ -308,6 +308,8 @@ namespace Puzzle
 		private void CheckPuzzle(Point direction, Thumb puzzle, thumbTag tTag, PuzzlePiece puzzlePiece, double left, double top)
 		{
 			var checkThumb = _thumbTab[puzzlePiece.Row + (int)direction.Y, puzzlePiece.Column + (int)direction.X];
+			var checkPuzzlePiece = _puzzles[checkThumb];
+			if (checkPuzzlePiece.RotationAngle != 0) return;
 			var checkTTag = (thumbTag)checkThumb.Tag;
 			if (checkTTag.listName != tTag.listName)
 				if (puzzlePiece.RotationAngle == 0
