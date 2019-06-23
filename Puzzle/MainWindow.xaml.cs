@@ -39,7 +39,7 @@ namespace Puzzle
 		public bool start = true;
 		private int _zCoordinate = int.MinValue + 1;
 		public Stream stream;
-		private readonly DropShadowBitmapEffect _shadowEffect;
+		private readonly DropShadowEffect _shadowEffect;
 		private Thumb[,] _thumbTab;
 		private const int Toleration = 20;
 		private readonly Point LEFT = new Point { X = -1, Y = 0 };
@@ -57,12 +57,12 @@ namespace Puzzle
 			setTimers();
 			SetSortDescriptions();
 
-			_shadowEffect = new DropShadowBitmapEffect
+			_shadowEffect = new DropShadowEffect
 			{
 				Color = Colors.Black,
 				Direction = 300,
 				ShadowDepth = 25,
-				Softness = 1,
+				BlurRadius = 10,
 				Opacity = 0.5
 			};
 		}
@@ -178,13 +178,13 @@ namespace Puzzle
 			ConnectedPieces.Add(newList);
 
 			_thumbTab[row, column] = puzzle;
-			SetThumbEventHandlers(puzzle);
+			SetPuzzleEventHandlers(puzzle);
 			GameImage.Children.Add(puzzle);
 
 			_puzzles.Add(puzzle, puzzlePiece);
 		}
 
-		private void SetThumbEventHandlers(Thumb puzzle)
+		private void SetPuzzleEventHandlers(Thumb puzzle)
 		{
 			puzzle.DragStarted += PuzzleDragStarted;
 			puzzle.DragDelta += PuzzleDragDelta;
@@ -195,36 +195,15 @@ namespace Puzzle
 		private void PuzzleMouseRightButtonDown(object sender, MouseButtonEventArgs e)
 		{
 			var thumb = (Thumb)sender;
-			var puzzlePiece = _puzzles[thumb];
 			var connectedPieces = ConnectedPieces.Single(u => u.Contains(thumb));
-
 			if (connectedPieces.Count != 1) return;
-			var imgBrush = thumb.Background;
 
+			var puzzlePiece = _puzzles[thumb];
 			puzzlePiece.Rotate();
 			var centerX = -1 + (GameDetails.PuzzleSize - 1) / 2;
 			var centerY = -1 + (GameDetails.PuzzleSize - 1) / 2;
 
-			imgBrush.Transform = new RotateTransform(puzzlePiece.RotationAngle, centerX, centerY);
-		}
-
-		private void EndGame()
-		{
-			timer.Stop();
-
-			var points = ConnectedPieces.Max(i => i.Count);
-
-			var ew = new EndWindow(points, seconds, GameDetails.PuzzleCount) { Owner = this };
-			var result = ew.ShowDialog();
-			if (result.HasValue && result.Value)
-			{
-				HighScores.Add(GameDetails.Difficulty, ew.HighScore);
-				NewGame();
-			}
-			else
-			{
-				timer.Start();
-			}
+			thumb.Background.Transform = new RotateTransform(puzzlePiece.RotationAngle, centerX, centerY);
 		}
 
 		private void PuzzleDragStarted(object sender, DragStartedEventArgs e)
@@ -244,23 +223,20 @@ namespace Puzzle
 			var connectedPieces = ConnectedPieces.Single(u => u.Contains(puzzle));
 			bool moveVertical = true, moveHorizontal = true;
 
-			for (var i = 0; i < connectedPieces.Count; i++)
+			foreach (var piece in connectedPieces)
 			{
-				if (Canvas.GetTop(connectedPieces[i]) + e.VerticalChange <= 0
-					|| Canvas.GetTop(connectedPieces[i]) + e.VerticalChange >= GameBackground.ActualHeight - GameDetails.PuzzleSize)
-					moveVertical = false;
-				if (Canvas.GetLeft(connectedPieces[i]) + e.HorizontalChange > GameBackground.ActualWidth - GameDetails.PuzzleSize
-				|| Canvas.GetLeft(connectedPieces[i]) + e.HorizontalChange <= 0)
-					moveHorizontal = false;
+				var top = Canvas.GetTop(piece) + e.VerticalChange;
+				var left = Canvas.GetLeft(piece) + e.HorizontalChange;
+
+				if (top <= 0 || top >= GameBackground.ActualHeight - GameDetails.PuzzleSize) moveVertical = false;
+				if (left > GameBackground.ActualWidth - GameDetails.PuzzleSize || left <= 0) moveHorizontal = false;
 			}
 
-			for (var i = 0; i < connectedPieces.Count; i++)
+			foreach (var piece in connectedPieces)
 			{
-				if (moveVertical)
-					Canvas.SetTop(connectedPieces[i], Canvas.GetTop(connectedPieces[i]) + e.VerticalChange);
-				if (moveHorizontal)
-					Canvas.SetLeft(connectedPieces[i], Canvas.GetLeft(connectedPieces[i]) + e.HorizontalChange);
-				connectedPieces[i].BitmapEffect = _shadowEffect;
+				if (moveVertical) Canvas.SetTop(piece, Canvas.GetTop(piece) + e.VerticalChange);
+				if (moveHorizontal) Canvas.SetLeft(piece, Canvas.GetLeft(piece) + e.HorizontalChange);
+				piece.Effect = _shadowEffect;
 			}
 		}
 
@@ -273,8 +249,8 @@ namespace Puzzle
 			if (puzzlePiece.RotationAngle == 0)
 				ConnectPuzzles(connectedPieces, puzzlePiece);
 
-			foreach (var t in connectedPieces)
-				t.BitmapEffect = null;
+			foreach (var piece in connectedPieces)
+				piece.Effect = null;
 		}
 
 		private void ConnectPuzzles(List<Thumb> connectedPieces, PuzzlePiece puzzlePiece)
@@ -330,6 +306,22 @@ namespace Puzzle
 					Canvas.SetTop(connectedPieces[j], Canvas.GetTop(connectedPieces[j]) - deltaY);
 				}
 			}
+		}
+
+		private void EndGame()
+		{
+			timer.Stop();
+			var points = ConnectedPieces.Max(pieces => pieces.Count);
+			var endWindow = new EndWindow(points, seconds, GameDetails.PuzzleCount) { Owner = this };
+			var result = endWindow.ShowDialog();
+			if (!result.HasValue || !result.Value)
+			{
+				timer.Start();
+				return;
+			}
+
+			HighScores.Add(GameDetails.Difficulty, endWindow.HighScore);
+			NewGame();
 		}
 
 		private void PauseButtonClick(object sender, RoutedEventArgs e)
