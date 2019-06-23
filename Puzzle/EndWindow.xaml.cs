@@ -29,10 +29,10 @@ namespace Puzzle
 
 			TimerLabel.Content = $"{minutes}:{seconds}:{milliseconds}";
 
-			max = mw.unionList.Max(i => i.Count);
+			max = mw.UnionList.Max(i => i.Count);
 
-			if (mw.gd.Points == mw.gd.PuzzleCount)
-				WonLabel.Content = $"You won! You connected all {mw.gd.Points} puzzles. Your time:";
+			if (mw.GameDetails.Points == mw.GameDetails.PuzzleCount)
+				WonLabel.Content = $"You won! You connected all {mw.GameDetails.Points} puzzles. Your time:";
 			else
 				WonLabel.Content = $"You connected only {max} puzzle(s). Your time:";
 		}
@@ -45,7 +45,7 @@ namespace Puzzle
 			if (name == string.Empty)
 				name = "John Doe";
 
-			switch (mw.gd.Difficulty)
+			switch (mw.GameDetails.Difficulty)
 			{
 				case Difficulty.Hard:
 					mw.HighScores.HardHighScores.Add(new HighScoreRecord(name, max, mw.seconds));
@@ -66,7 +66,7 @@ namespace Puzzle
 		{
 			var mw = Owner as MainWindow;
 
-			if (mw.gd.Points == mw.gd.PuzzleCount)
+			if (mw.GameDetails.Points == mw.GameDetails.PuzzleCount)
 				NewGame(mw);
 			else
 				mw.timer.Start();
@@ -77,14 +77,14 @@ namespace Puzzle
 		private static void NewGame(MainWindow mw)
 		{
 			mw.start = true;
-			mw.startButton.Content = "Start Game";
-			mw.pauseButton.IsEnabled = false;
+			mw.StartButton.Content = "Start Game";
+			mw.PauseButton.IsEnabled = false;
 			mw.stream.Close();
-			mw.image.Background = null;
+			mw.GameImage.Background = null;
 			mw.timer.Stop();
-			mw.timerLabel.Visibility = Visibility.Hidden;
-			mw.unionList.Clear();
-			mw.image.Children.Clear();
+			mw.TimerLabel.Visibility = Visibility.Hidden;
+			mw.UnionList.Clear();
+			mw.GameImage.Children.Clear();
 		}
 	}
 }

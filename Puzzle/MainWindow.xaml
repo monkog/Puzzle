@@ -31,8 +31,8 @@
 						<RowDefinition Height="Auto"/>
 					</Grid.RowDefinitions>
 
-					<Rectangle Grid.Row="0" Grid.Column="0" Name="rectangle" Fill="#FF9EBDDE" Margin="20"/>
-					<Canvas Grid.Row="0" Grid.Column="0" Name="image" x:FieldModifier="public" Margin="20"/>
+					<Rectangle Grid.Row="0" Grid.Column="0" Name="GameBackground" Fill="#FF9EBDDE" Margin="20"/>
+					<Canvas Grid.Row="0" Grid.Column="0" Name="GameImage" x:FieldModifier="public" Margin="20"/>
 
 					<Grid Grid.Row="0" Grid.Column="1" Margin="0,15,20,0">
 						<Grid.RowDefinitions>
@@ -41,23 +41,23 @@
 							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
 
-						<Button Grid.Row="0" Name ="startButton" Content="Start Game" Click="startButton_Click" x:FieldModifier="public"/>
-						<Button Grid.Row="1" Name="pauseButton" Content="Pause" IsEnabled="False" Click="pauseButton_Click" x:FieldModifier="public"/>
+						<Button Grid.Row="0" Name ="StartButton" Content="Start Game" Click="StartButtonClick" x:FieldModifier="public"/>
+						<Button Grid.Row="1" Name="PauseButton" Content="Pause" IsEnabled="False" Click="PauseButtonClick" x:FieldModifier="public"/>
 
 						<GroupBox Grid.Row="2" Header="Puzzle size" Margin="0,10">
 							<StackPanel>
-								<RadioButton Name="hardRadio"  GroupName="PuzzleSize" Content="Hard" IsChecked="True"/>
-								<RadioButton Name="mediumRadio" GroupName="PuzzleSize" Content="Medium"/>
-								<RadioButton Name="easyRadio" GroupName="PuzzleSize" Content="Easy"/>
+								<RadioButton Name="HardRadio"  GroupName="PuzzleSize" Content="Hard" IsChecked="True"/>
+								<RadioButton Name="MediumRadio" GroupName="PuzzleSize" Content="Medium"/>
+								<RadioButton Name="EasyRadio" GroupName="PuzzleSize" Content="Easy"/>
 							</StackPanel>
 						</GroupBox>
 
 					</Grid>
 
 					<StatusBar Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Height="25"/>
-					<Label Grid.Column="1" Grid.Row="1" Name="timerLabel" Width="100" HorizontalAlignment="Right" Visibility="Hidden" x:FieldModifier="public"/>
+					<Label Grid.Column="1" Grid.Row="1" Name="TimerLabel" Width="100" HorizontalAlignment="Right" Visibility="Hidden" x:FieldModifier="public"/>
 
-					<Image Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Name="pauseImage" Source="/Puzzle;component/Images/pause.png" Opacity="0.8" Stretch="Fill" MouseDown="pauseImage_MouseDown" Visibility="Hidden"/>
+					<Image Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Name="PauseImage" Source="/Puzzle;component/Images/pause.png" Opacity="0.8" Stretch="Fill" MouseDown="pauseImage_MouseDown" Visibility="Hidden"/>
 				</Grid>
 			</TabItem>
 			<TabItem Header="HighScores">
@@ -87,7 +87,7 @@
 						</LinearGradientBrush>
 					</Grid.Background>
 					<Label Grid.Column="0" Grid.Row="0" Content="Easy"/>
-					<ListView Name="easyListView" Grid.Column="0" Grid.Row="1" ItemsSource="{Binding HighScores.EasyHighScores}">
+					<ListView Name="EasyListView" Grid.Column="0" Grid.Row="1" ItemsSource="{Binding HighScores.EasyHighScores}">
 						<ListView.View>
 							<GridView>
 								<GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}"/>
@@ -97,7 +97,7 @@
 						</ListView.View>
 					</ListView>
 					<Label Grid.Column="1" Grid.Row="0" Content="Medium"/>
-					<ListView Name="mediumListView" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding HighScores.MediumHighScores}">
+					<ListView Name="MediumListView" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding HighScores.MediumHighScores}">
 						<ListView.View>
 							<GridView>
 								<GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
@@ -107,7 +107,7 @@
 						</ListView.View>
 					</ListView>
 					<Label Grid.Column="2" Grid.Row="0" Content="Hard"/>
-					<ListView Name="hardListView" Grid.Column="2" Grid.Row="1" ItemsSource="{Binding HighScores.HardHighScores}">
+					<ListView Name="HardListView" Grid.Column="2" Grid.Row="1" ItemsSource="{Binding HighScores.HardHighScores}">
 						<ListView.View>
 							<GridView>
 								<GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>

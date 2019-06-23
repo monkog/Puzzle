@@ -26,10 +26,10 @@ namespace Puzzle
 
         void new_timer()
         {
-            timerLabel.Visibility = Visibility.Visible;
+            TimerLabel.Visibility = Visibility.Visible;
             timer.Stop();
             seconds = 0;
-            timerLabel.Content = String.Format("Time {0}:{1}:{2}", (seconds / 3600).ToString("00")
+            TimerLabel.Content = String.Format("Time {0}:{1}:{2}", (seconds / 3600).ToString("00")
                 , (seconds / 60).ToString("00"), (seconds % 60).ToString("00"));
             timer.Start();
         }
@@ -42,25 +42,25 @@ namespace Puzzle
         void timer_Tick(object sender, EventArgs e)
         {
             seconds++;
-            timerLabel.Content = String.Format("Time {0}:{1}:{2}", (seconds / 3600).ToString("00")
+            TimerLabel.Content = String.Format("Time {0}:{1}:{2}", (seconds / 3600).ToString("00")
                 , (seconds / 60).ToString("00"), (seconds % 60).ToString("00"));
         }
 
         void pauseTimer_Tick(object sender, EventArgs e)
         {
-            pauseImage.Opacity -= 0.05;
-            pauseImage.UpdateLayout();
+            PauseImage.Opacity -= 0.05;
+            PauseImage.UpdateLayout();
 
-            if (pauseImage.Opacity <= 0.1)
+            if (PauseImage.Opacity <= 0.1)
             {
                 pauseTimer.Stop();
                 timer.Start();
-                startButton.IsEnabled = true;
-                pauseButton.IsEnabled = true;
-                easyRadio.IsEnabled = true;
-                mediumRadio.IsEnabled = true;
-                hardRadio.IsEnabled = true;
-                pauseImage.Visibility = Visibility.Hidden;
+                StartButton.IsEnabled = true;
+                PauseButton.IsEnabled = true;
+                EasyRadio.IsEnabled = true;
+                MediumRadio.IsEnabled = true;
+                HardRadio.IsEnabled = true;
+                PauseImage.Visibility = Visibility.Hidden;
             }
         }
         #endregion
